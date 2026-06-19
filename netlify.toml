@@ -1,0 +1,12 @@
+# Netlify configuration for the Next.js (App Router) app.
+# The official Next.js runtime plugin handles SSR, server actions, and middleware.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  # Next 15 needs Node 18.18+. Pin a current LTS for reproducible builds.
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
