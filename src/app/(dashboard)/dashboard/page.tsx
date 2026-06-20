@@ -37,7 +37,9 @@ const STATS_BY_ROLE: Record<Exclude<UserRole, "admin">, Stat[]> = {
 export default async function DashboardPage() {
   const { profile } = await requireUser();
   const stats =
-    profile.role === "admin" ? await getAdminStats() : STATS_BY_ROLE[profile.role];
+    profile.role === "admin" || profile.role === "worker"
+      ? await getAdminStats()
+      : STATS_BY_ROLE[profile.role];
 
   return (
     <div className="space-y-8">

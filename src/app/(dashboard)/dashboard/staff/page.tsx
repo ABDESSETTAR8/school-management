@@ -6,7 +6,7 @@ import { StaffTable } from "@/features/staff/components/staff-table";
 export const metadata: Metadata = { title: "Staff" };
 
 export default async function StaffPage() {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const staff = await getStaff();
 
   return (

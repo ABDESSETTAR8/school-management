@@ -20,7 +20,7 @@ export default async function ClassDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const { id } = await params;
 
   const cls = await getClass(id);

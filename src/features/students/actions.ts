@@ -13,7 +13,7 @@ import {
 const STUDENTS_PATH = "/dashboard/students";
 
 export async function createStudent(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = createStudentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -62,7 +62,7 @@ export async function createStudent(_prev: ActionState, formData: FormData): Pro
 }
 
 export async function updateStudent(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = updateStudentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -93,7 +93,7 @@ export async function updateStudent(_prev: ActionState, formData: FormData): Pro
 }
 
 export async function deleteStudent(profileId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   let admin;
   try {

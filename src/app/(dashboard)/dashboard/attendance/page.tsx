@@ -50,17 +50,7 @@ export default async function AttendancePage({
     );
   }
 
-  // ---- Worker (no attendance surface) --------------------------------------
-  if (profile.role === "worker") {
-    return (
-      <div className="space-y-6">
-        <Header title="Attendance" subtitle="" />
-        <Empty text="Attendance is managed by teaching staff." />
-      </div>
-    );
-  }
-
-  // ---- Admin / Teacher: take attendance ------------------------------------
+  // ---- Admin / Teacher / Worker: take attendance ---------------------------
   const staffId = await getMyStaffId();
   const offerings = await getOfferings(profile.role, staffId);
 

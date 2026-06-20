@@ -19,7 +19,7 @@ async function currentAcademicYearId(
 }
 
 export async function saveClass(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = classSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -62,7 +62,7 @@ export async function saveClass(_prev: ActionState, formData: FormData): Promise
 }
 
 export async function deleteClass(classId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const supabase = await createClient();
   const { error } = await supabase.from("classes").delete().eq("id", classId);
   if (error) return { error: error.message };

@@ -11,7 +11,7 @@ export async function enrollStudents(
   classId: string,
   studentIds: string[],
 ): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   if (studentIds.length === 0) return { error: "Select at least one student." };
 
   const supabase = await createClient();
@@ -34,7 +34,7 @@ export async function removeEnrollment(
   enrollmentId: string,
   classId: string,
 ): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const supabase = await createClient();
   const { error } = await supabase.from("enrollments").delete().eq("id", enrollmentId);
   if (error) return { error: error.message };

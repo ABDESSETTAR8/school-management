@@ -9,7 +9,7 @@ import { createStaffSchema, updateStaffSchema, type ActionState } from "./schema
 const PATH = "/dashboard/staff";
 
 export async function createStaff(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = createStaffSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -53,7 +53,7 @@ export async function createStaff(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function updateStaff(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = updateStaffSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -87,7 +87,7 @@ export async function updateStaff(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function deleteStaff(profileId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   let admin;
   try {

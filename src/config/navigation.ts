@@ -32,7 +32,17 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
   ],
-  worker: [{ title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
+  // Workers are full-access administrators (same surface as admin).
+  worker: [
+    { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
+    { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
+    { title: "Parents", href: "/dashboard/guardians", icon: "Users2" },
+    { title: "Staff", href: "/dashboard/staff", icon: "UserCog" },
+    { title: "Classes", href: "/dashboard/classes", icon: "Users" },
+    { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
+    { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
+    { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  ],
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {

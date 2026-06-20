@@ -9,7 +9,7 @@ import { createGuardianSchema, linkChildSchema, type ActionState } from "./schem
 const PATH = "/dashboard/guardians";
 
 export async function createGuardian(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = createGuardianSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -45,7 +45,7 @@ export async function createGuardian(_prev: ActionState, formData: FormData): Pr
 }
 
 export async function linkChild(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = linkChildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -66,7 +66,7 @@ export async function linkChild(_prev: ActionState, formData: FormData): Promise
 }
 
 export async function unlinkChild(guardianId: string, studentId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const supabase = await createClient();
   const { error } = await supabase
     .from("student_guardians")
@@ -79,7 +79,7 @@ export async function unlinkChild(guardianId: string, studentId: string): Promis
 }
 
 export async function deleteGuardian(profileId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   let admin;
   try {

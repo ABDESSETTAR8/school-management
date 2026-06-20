@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Classes" };
 export default async function ClassesPage() {
   const { profile } = await requireUser();
 
-  if (profile.role === "admin") {
+  if (profile.role === "admin" || profile.role === "worker") {
     const [classes, teachers] = await Promise.all([getClasses(), getTeacherOptions()]);
     return (
       <div className="space-y-6">

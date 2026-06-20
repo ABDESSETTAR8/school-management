@@ -6,7 +6,7 @@ import { YearsManager } from "@/features/settings/components/years-manager";
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const years = await getAcademicYears();
 
   return (

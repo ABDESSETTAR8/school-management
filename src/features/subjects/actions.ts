@@ -8,7 +8,7 @@ import { subjectSchema, type ActionState } from "./schema";
 const PATH = "/dashboard/subjects";
 
 export async function saveSubject(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
 
   const parsed = subjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -36,7 +36,7 @@ export async function saveSubject(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function deleteSubject(subjectId: string): Promise<ActionState> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const supabase = await createClient();
   const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
   if (error) {

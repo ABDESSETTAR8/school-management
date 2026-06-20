@@ -6,7 +6,7 @@ import { SubjectsTable } from "@/features/subjects/components/subjects-table";
 export const metadata: Metadata = { title: "Subjects" };
 
 export default async function SubjectsPage() {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const subjects = await getSubjects();
 
   return (

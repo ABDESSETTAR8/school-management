@@ -15,7 +15,7 @@ export async function saveAttendance(
   date: string,
   entries: AttendanceEntry[],
 ): Promise<ActionState> {
-  const { id: userId, profile } = await requireRole(["admin", "teacher"]);
+  const { id: userId, profile } = await requireRole(["admin", "teacher", "worker"]);
   if (entries.length === 0) return { error: "No students to record." };
 
   const supabase = await createClient();

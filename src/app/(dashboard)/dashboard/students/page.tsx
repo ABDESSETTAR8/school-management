@@ -6,7 +6,7 @@ import { StudentsTable } from "@/features/students/components/students-table";
 export const metadata: Metadata = { title: "Students" };
 
 export default async function StudentsPage() {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "worker"]);
   const students = await getStudents();
 
   return (
