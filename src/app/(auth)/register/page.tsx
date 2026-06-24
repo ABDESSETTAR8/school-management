@@ -1,18 +1,6 @@
-import type { Metadata } from "next";
-import { RegisterForm } from "@/features/auth/components/register-form";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Create account" };
-
+// Public sign-up is disabled. Accounts are provisioned by an administrator.
 export default function RegisterPage() {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
-        <p className="text-sm text-muted-foreground">
-          Get started in less than a minute.
-        </p>
-      </div>
-      <RegisterForm />
-    </div>
-  );
+  redirect("/login");
 }

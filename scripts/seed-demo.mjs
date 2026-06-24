@@ -199,9 +199,68 @@ async function main() {
     }
   }
 
-  console.log("\n✅ Done. Login for any demo account:");
-  console.log("   email:    student1@demo.school  (…through student36) / teacher1@demo.school …");
-  console.log(`   password: ${PASSWORD}`);
+  // 6. Named one-per-role demo accounts (shown on the login page) -------------
+  console.log("→ Creating named demo accounts (admin/worker/teacher/student/parent)…");
+
+  // admin
+  await getOrCreateUser("admin@demo.school", "Demo", "Admin", "admin");
+
+  // worker (full-access) — give a staff record
+  {
+    const pid = await getOrCreateUser("worker@demo.school", "Demo", "Worker", "worker");
+    const { data: ex } = await db.from("staff").select("id").eq("profile_id", pid).maybeSingle();
+    if (!ex) await db.from("staff").insert({ profile_id: pid, employee_no: "EMP-DEMO-W", job_title: "Office", department: "Administration" });
+  }
+
+  // teacher — staff record + assign to a class_subject so attendance works
+  let demoTeacherStaffId;
+  {
+    const pid = await getOrCreateUser("teacher@demo.school", "Demo", "Teacher", "teacher");
+    const { data: ex } = await db.from("staff").select("id").eq("profile_id", pid).maybeSingle();
+    demoTeacherStaffId = ex?.id;
+    if (!demoTeacherStaffId) {
+      const { data } = await db.from("staff").insert({ profile_id: pid, employee_no: "EMP-DEMO-T", job_title: "Teacher", department: "Academics" }).select("id").single();
+      demoTeacherStaffId = data.id;
+    }
+    // assign this teacher to the first class_subject of the first class
+    const { data: cs } = await db.from("class_subjects").select("id").eq("class_id", classes[0].id).limit(1).maybeSingle();
+    if (cs) await db.from("class_subjects").update({ teacher_id: demoTeacherStaffId }).eq("id", cs.id);
+  }
+
+  // student — students record + enroll in the first class
+  let demoStudentId;
+  {
+    const pid = await getOrCreateUser("student@demo.school", "Demo", "Student", "student");
+    await db.from("profiles").update({ gender: "male" }).eq("id", pid);
+    const { data: ex } = await db.from("students").select("id").eq("profile_id", pid).maybeSingle();
+    demoStudentId = ex?.id;
+    if (!demoStudentId) {
+      const { data } = await db.from("students").insert({ profile_id: pid, admission_no: "STU-DEMO-1", admission_date: "2025-09-01" }).select("id").single();
+      demoStudentId = data.id;
+    }
+    const { data: active } = await db.from("enrollments").select("id").eq("student_id", demoStudentId).eq("status", "active").maybeSingle();
+    if (!active) await db.from("enrollments").insert({ student_id: demoStudentId, class_id: classes[0].id, status: "active" });
+  }
+
+  // parent — guardians record + link to the demo student
+  {
+    const pid = await getOrCreateUser("parent@demo.school", "Demo", "Parent", "parent");
+    const { data: ex } = await db.from("guardians").select("id").eq("profile_id", pid).maybeSingle();
+    let guardianId = ex?.id;
+    if (!guardianId) {
+      const { data } = await db.from("guardians").insert({ profile_id: pid, occupation: "Engineer" }).select("id").single();
+      guardianId = data.id;
+    }
+    if (demoStudentId) {
+      const { data: link } = await db.from("student_guardians").select("student_id").eq("guardian_id", guardianId).eq("student_id", demoStudentId).maybeSingle();
+      if (!link) await db.from("student_guardians").insert({ guardian_id: guardianId, student_id: demoStudentId, relationship: "father", is_primary: true });
+    }
+  }
+
+  console.log("\n✅ Done. One-click demo accounts (also shown on the login page):");
+  console.log("   admin@demo.school · worker@demo.school · teacher@demo.school · student@demo.school · parent@demo.school");
+  console.log("   bulk test data:    student1..36@demo.school / teacher1..8@demo.school");
+  console.log(`   password (all):    ${PASSWORD}`);
 }
 
 main().catch((e) => { console.error("\n✖ Seeding failed:", e.message); process.exit(1); });

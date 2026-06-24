@@ -7,8 +7,8 @@ export const subjectSchema = z.object({
     .min(2, "Code is required.")
     .max(12, "Code is too long.")
     .transform((s) => s.toUpperCase().trim()),
-  name: z.string().min(2, "Name is required."),
-  description: z.string().optional(),
+  name: z.string().min(2, "Name is required.").max(80, "Name is too long."),
+  description: z.string().max(300, "Description is too long.").optional(),
 });
 
 export type SubjectInput = z.infer<typeof subjectSchema>;

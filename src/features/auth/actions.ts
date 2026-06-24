@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { loginSchema, registerSchema, type AuthState } from "./schema";
+import { DEMO_EMAILS, DEMO_PASSWORD, loginSchema, type AuthState } from "./schema";
 
 export async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const parsed = loginSchema.safeParse({
@@ -22,33 +22,20 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   redirect("/dashboard");
 }
 
-export async function register(_prev: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = registerSchema.safeParse({
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    role: formData.get("role"),
-    password: formData.get("password"),
-    confirmPassword: formData.get("confirmPassword"),
-  });
-  if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
+/** One-click login to a public demo account. */
+export async function demoLogin(email: string): Promise<AuthState> {
+  if (!DEMO_EMAILS.includes(email)) {
+    return { error: "Unknown demo account." };
   }
-
-  const { firstName, lastName, email, role, password } = parsed.data;
   const supabase = await createClient();
-
-  // Profile row is created by the on_auth_user_created trigger using this metadata.
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
-    password,
-    options: {
-      data: { first_name: firstName, last_name: lastName, role },
-    },
+    password: DEMO_PASSWORD,
   });
   if (error) return { error: error.message };
 
-  return { success: "Account created. Check your email to confirm, then sign in." };
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
 }
 
 export async function logout() {

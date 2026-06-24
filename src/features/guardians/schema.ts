@@ -8,11 +8,11 @@ export const RELATIONSHIP_OPTIONS = [
 ] as const;
 
 export const createGuardianSchema = z.object({
-  firstName: z.string().min(2, "First name is too short."),
-  lastName: z.string().min(2, "Last name is too short."),
-  email: z.string().email("Enter a valid email address."),
-  password: z.string().min(8, "Temporary password must be at least 8 characters."),
-  occupation: z.string().optional(),
+  firstName: z.string().min(2, "First name is too short.").max(60, "First name is too long."),
+  lastName: z.string().min(2, "Last name is too short.").max(60, "Last name is too long."),
+  email: z.string().email("Enter a valid email address.").max(120),
+  password: z.string().min(8, "Temporary password must be at least 8 characters.").max(72),
+  occupation: z.string().max(60, "Occupation is too long.").optional(),
 });
 
 export const linkChildSchema = z.object({
