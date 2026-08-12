@@ -19,26 +19,19 @@ async function attendanceTodayRate(): Promise<string> {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: sessions } = await supabase
-    .from("attendance_sessions")
-    .select("id")
-    .eq("session_date", today);
-
-  const ids = (sessions ?? []).map((s: { id: string }) => s.id);
-  if (ids.length === 0) return "—";
-
   const { count: total } = await supabase
-    .from("attendance_records")
+    .from("attendance")
     .select("id", { count: "exact", head: true })
-    .in("session_id", ids);
-
-  const { count: present } = await supabase
-    .from("attendance_records")
-    .select("id", { count: "exact", head: true })
-    .in("session_id", ids)
-    .in("status", ["present", "late"]);
+    .eq("date", today);
 
   if (!total) return "—";
+
+  const { count: present } = await supabase
+    .from("attendance")
+    .select("id", { count: "exact", head: true })
+    .eq("date", today)
+    .in("status", ["present", "late"]);
+
   return `${Math.round(((present ?? 0) / total) * 100)}%`;
 }
 

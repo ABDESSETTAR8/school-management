@@ -1,116 +1,98 @@
 import type { Metadata } from "next";
-import { requireUser } from "@/lib/auth/session";
+import { requireRole } from "@/lib/auth/session";
 import {
-  getAttendanceSheet,
-  getMyStaffId,
-  getOfferings,
-  getParentChildrenAttendance,
-  getStudentAttendance,
+  getAttendanceGroups,
+  getGroupAttendanceSheet,
+  getGroupMonthSummary,
 } from "@/features/attendance/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AttendanceControls } from "@/features/attendance/components/attendance-controls";
 import { AttendanceSheet } from "@/features/attendance/components/attendance-sheet";
-import { StudentAttendance } from "@/features/attendance/components/student-attendance";
-import { ParentAttendance } from "@/features/attendance/components/parent-attendance";
 
 export const metadata: Metadata = { title: "Attendance" };
-
-export default async function AttendancePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ cs?: string; date?: string }>;
-}) {
-  const { profile } = await requireUser();
-  const sp = await searchParams;
-  const today = new Date().toISOString().slice(0, 10);
-
-  // ---- Student view --------------------------------------------------------
-  if (profile.role === "student") {
-    const data = await getStudentAttendance();
-    return (
-      <div className="space-y-6">
-        <Header title="My attendance" subtitle="Your attendance summary and history." />
-        {data ? (
-          <StudentAttendance summary={data.summary} history={data.history} />
-        ) : (
-          <Empty text="No student record linked to your account." />
-        )}
-      </div>
-    );
-  }
-
-  // ---- Parent view ---------------------------------------------------------
-  if (profile.role === "parent") {
-    const childrenAttendance = await getParentChildrenAttendance();
-    return (
-      <div className="space-y-6">
-        <Header title="Children's attendance" subtitle="Attendance for your linked children." />
-        <ParentAttendance children={childrenAttendance} />
-      </div>
-    );
-  }
-
-  // ---- Admin / Teacher / Worker: take attendance ---------------------------
-  const staffId = await getMyStaffId();
-  const offerings = await getOfferings(profile.role, staffId);
-
-  if (offerings.length === 0) {
-    return (
-      <div className="space-y-6">
-        <Header title="Take attendance" subtitle="" />
-        <Empty
-          text={
-            profile.role === "teacher"
-              ? "You have no assigned classes yet."
-              : "No class-subject offerings found. Run the demo seeder or assign subjects to classes."
-          }
-        />
-      </div>
-    );
-  }
-
-  const selectedId = sp.cs && offerings.some((o) => o.id === sp.cs) ? sp.cs : offerings[0].id;
-  const date = sp.date ?? today;
-  const { rows } = await getAttendanceSheet(selectedId, date);
-  const selected = offerings.find((o) => o.id === selectedId)!;
-
-  return (
-    <div className="space-y-6">
-      <Header
-        title="Take attendance"
-        subtitle="Select a class, subject, and date, then mark each student."
-      />
-      <AttendanceControls offerings={offerings} selectedId={selectedId} date={date} />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {selected.className} · {selected.subjectName} ·{" "}
-            <span className="font-normal text-muted-foreground">
-              {new Date(date).toLocaleDateString()}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AttendanceSheet classSubjectId={selectedId} date={date} rows={rows} />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function Header({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="space-y-1">
-      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-      {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
-    </div>
-  );
-}
 
 function Empty({ text }: { text: string }) {
   return (
     <Card className="flex items-center justify-center py-16 text-center text-sm text-muted-foreground">
       {text}
     </Card>
+  );
+}
+
+export default async function AttendancePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ grp?: string; date?: string }>;
+}) {
+  await requireRole(["admin", "worker"]);
+  const sp = await searchParams;
+  const today = new Date().toISOString().slice(0, 10);
+
+  const groups = await getAttendanceGroups();
+
+  if (groups.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Header />
+        <Empty text="No active groups yet. Create a group first, then assign students to it." />
+      </div>
+    );
+  }
+
+  const selectedId = sp.grp && groups.some((g) => g.id === sp.grp) ? sp.grp : groups[0].id;
+  const date = sp.date ?? today;
+  const [{ rows }, summary] = await Promise.all([
+    getGroupAttendanceSheet(selectedId, date),
+    getGroupMonthSummary(selectedId, date.slice(0, 7)),
+  ]);
+  const selected = groups.find((g) => g.id === selectedId)!;
+
+  const stats = [
+    { label: "This month rate", value: `${summary.rate}%` },
+    { label: "Present", value: summary.present },
+    { label: "Absent", value: summary.absent },
+    { label: "Late", value: summary.late },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Header />
+      <AttendanceControls groups={groups} selectedId={selectedId} date={date} />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => (
+          <Card key={s.label} className="p-5">
+            <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
+            <p className="mt-2 text-2xl font-semibold">{s.value}</p>
+          </Card>
+        ))}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {selected.name}
+            {selected.className ? ` · ${selected.className}` : ""} ·{" "}
+            <span className="font-normal text-muted-foreground">
+              {new Date(date).toLocaleDateString()}
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AttendanceSheet groupId={selectedId} date={date} rows={rows} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <div className="space-y-1">
+      <h1 className="text-2xl font-semibold tracking-tight">Attendance</h1>
+      <p className="text-sm text-muted-foreground">
+        Select a group and date, then mark each student.
+      </p>
+    </div>
   );
 }

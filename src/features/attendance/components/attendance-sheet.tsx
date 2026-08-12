@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { saveAttendance, type AttendanceEntry } from "../actions";
+import { saveGroupAttendance, type AttendanceEntry } from "../actions";
 import type { AttendanceRow, AttendanceStatus } from "@/types/database.types";
 import { getInitials, cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,11 +17,11 @@ const STATUSES: { value: AttendanceStatus; label: string; on: string }[] = [
 ];
 
 export function AttendanceSheet({
-  classSubjectId,
+  groupId,
   date,
   rows,
 }: {
-  classSubjectId: string;
+  groupId: string;
   date: string;
   rows: AttendanceRow[];
 }) {
@@ -56,7 +56,7 @@ export function AttendanceSheet({
       status: statuses[r.studentId] ?? "present",
     }));
     startTransition(async () => {
-      const res = await saveAttendance(classSubjectId, date, entries);
+      const res = await saveGroupAttendance(groupId, date, entries);
       if (res?.error) {
         setError(res.error);
         toast({ title: res.error, variant: "error" });
