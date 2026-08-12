@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/features/notifications/create";
 import { paymentSchema, teacherSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/teachers";
@@ -37,6 +38,7 @@ export async function saveTeacher(_prev: ActionState, formData: FormData): Promi
 
   const { error } = await supabase.from("teachers").insert(row);
   if (error) return { error: error.message };
+  await createNotification("teacher", "Teacher added", `${row.first_name} ${row.last_name}`.trim());
   revalidatePath(PATH);
   return { success: "Teacher added." };
 }
@@ -66,6 +68,7 @@ export async function recordPayment(_prev: ActionState, formData: FormData): Pro
   });
   if (error) return { error: error.message };
 
+  await createNotification("payment", "Teacher payment recorded", `${d.amount.toLocaleString()} DZD`);
   revalidatePath(PATH);
   return { success: "Payment recorded." };
 }

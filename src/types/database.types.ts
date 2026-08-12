@@ -101,6 +101,15 @@ export type LinkableStudent = {
   name: string;
 };
 
+export type Notification = {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  is_read: boolean;
+  created_at: string;
+};
+
 export type SchoolSettings = {
   id: boolean;
   school_name: string;

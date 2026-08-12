@@ -1,10 +1,20 @@
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { UserMenu } from "./user-menu";
-import type { Profile } from "@/types/database.types";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
+import type { Notification, Profile } from "@/types/database.types";
 
-export function Topbar({ profile, roleLabel }: { profile: Profile; roleLabel: string }) {
+export function Topbar({
+  profile,
+  roleLabel,
+  notifications,
+  unreadCount,
+}: {
+  profile: Profile;
+  roleLabel: string;
+  notifications: Notification[];
+  unreadCount: number;
+}) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-6 backdrop-blur">
       <div className="relative hidden max-w-sm flex-1 items-center md:flex">
@@ -16,10 +26,7 @@ export function Topbar({ profile, roleLabel }: { profile: Profile; roleLabel: st
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell />
-          <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
-        </Button>
+        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
         <Badge variant="secondary" className="hidden sm:inline-flex">
           {roleLabel}
         </Badge>

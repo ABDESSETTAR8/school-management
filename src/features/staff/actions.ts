@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createStaffSchema, updateStaffSchema, type ActionState } from "./schema";
+import { createNotification } from "@/features/notifications/create";
 import { PERMISSION_KEYS } from "@/config/permissions";
 
 const PATH = "/dashboard/staff";
@@ -63,6 +64,7 @@ export async function createStaff(_prev: ActionState, formData: FormData): Promi
     };
   }
 
+  await createNotification("worker", `${d.role === "worker" ? "Worker" : "Staff"} added`, `${d.firstName} ${d.lastName}`.trim());
   revalidatePath(PATH);
   return { success: "Staff member created." };
 }

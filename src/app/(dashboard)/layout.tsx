@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth/session";
 import { ROLE_LABELS } from "@/config/navigation";
+import { getNotifications, getUnreadCount } from "@/features/notifications/queries";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 
@@ -10,12 +11,18 @@ export default async function DashboardLayout({
 }) {
   const { profile } = await requireUser();
   const roleLabel = ROLE_LABELS[profile.role];
+  const [notifications, unreadCount] = await Promise.all([getNotifications(8), getUnreadCount()]);
 
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar role={profile.role} permissions={profile.permissions ?? []} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar profile={profile} roleLabel={roleLabel} />
+        <Topbar
+          profile={profile}
+          roleLabel={roleLabel}
+          notifications={notifications}
+          unreadCount={unreadCount}
+        />
         <main className="flex-1 p-6 lg:p-8">{children}</main>
       </div>
     </div>

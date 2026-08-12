@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/features/notifications/create";
 import { groupSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/groups";
@@ -35,6 +36,7 @@ export async function saveGroup(_prev: ActionState, formData: FormData): Promise
 
   const { error } = await supabase.from("groups").insert(row);
   if (error) return { error: error.message };
+  await createNotification("group", "Group created", d.name);
   revalidatePath(PATH);
   return { success: "Group created." };
 }

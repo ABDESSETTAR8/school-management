@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/features/notifications/create";
 import { createStudentSchema, updateStudentSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/students";
@@ -46,6 +47,11 @@ export async function createStudent(_prev: ActionState, formData: FormData): Pro
   const { error } = await supabase.from("students").insert(rowFrom(parsed.data));
   if (error) return { error: error.message };
 
+  await createNotification(
+    "student",
+    "New student registered",
+    `${parsed.data.firstName} ${parsed.data.lastName ?? ""}`.trim(),
+  );
   revalidatePath(PATH);
   revalidatePath("/dashboard/groups");
   return { success: "Student registered." };
@@ -72,6 +78,7 @@ export async function deleteStudent(studentId: string): Promise<ActionState> {
   const { error } = await supabase.from("students").delete().eq("id", studentId);
   if (error) return { error: error.message };
 
+  await createNotification("student", "Student removed");
   revalidatePath(PATH);
   revalidatePath("/dashboard/groups");
   return { success: "Student removed." };

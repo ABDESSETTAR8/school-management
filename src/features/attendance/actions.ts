@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import type { AttendanceStatus } from "@/types/database.types";
+import { createNotification } from "@/features/notifications/create";
 
 type ActionState = { error?: string; success?: string } | null;
 
@@ -31,6 +32,7 @@ export async function saveGroupAttendance(
     .upsert(rows, { onConflict: "group_id,student_id,date" });
   if (error) return { error: error.message };
 
+  await createNotification("attendance", "Attendance recorded", `${entries.length} students · ${date}`);
   revalidatePath("/dashboard/attendance");
   revalidatePath("/dashboard");
   return { success: `Saved attendance for ${entries.length} students.` };
