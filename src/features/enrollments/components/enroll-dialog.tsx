@@ -35,10 +35,7 @@ export function EnrollDialog({
   const filtered = candidates.filter((s) => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return (
-      `${s.first_name} ${s.last_name}`.toLowerCase().includes(q) ||
-      s.admission_no.toLowerCase().includes(q)
-    );
+    return `${s.first_name} ${s.last_name}`.toLowerCase().includes(q);
   });
 
   function toggle(id: string) {
@@ -113,7 +110,6 @@ export function EnrollDialog({
                     <p className="truncate text-sm font-medium">
                       {s.first_name} {s.last_name}
                     </p>
-                    <p className="truncate text-xs text-muted-foreground">{s.admission_no}</p>
                   </div>
                   <span
                     className={`flex size-5 items-center justify-center rounded-md border ${

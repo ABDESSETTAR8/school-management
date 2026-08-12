@@ -7,39 +7,31 @@ export const GENDER_OPTIONS = [
   { value: "undisclosed", label: "Prefer not to say" },
 ] as const;
 
-export const NAME_MAX = 60;
-export const EMAIL_MAX = 120;
-export const ADMISSION_MAX = 30;
-export const PHONE_MAX = 30;
-export const PASSWORD_MAX = 72;
+export const STATUS_OPTIONS = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+] as const;
 
-export const createStudentSchema = z.object({
-  firstName: z.string().min(2, "First name is too short.").max(NAME_MAX, "First name is too long."),
-  lastName: z.string().min(2, "Last name is too short.").max(NAME_MAX, "Last name is too long."),
-  email: z.string().email("Enter a valid email address.").max(EMAIL_MAX),
-  password: z
-    .string()
-    .min(8, "Temporary password must be at least 8 characters.")
-    .max(PASSWORD_MAX, "Password is too long."),
-  admissionNo: z.string().min(1, "Admission number is required.").max(ADMISSION_MAX, "Admission number is too long."),
-  admissionDate: z.string().min(1, "Admission date is required.").max(10),
-  gender: z.enum(["male", "female", "other", "undisclosed"]).optional(),
-  phone: z.string().max(PHONE_MAX, "Phone is too long.").optional(),
-});
+const NAME = 60;
 
-export const updateStudentSchema = z.object({
-  studentId: z.string().uuid(),
-  profileId: z.string().uuid(),
-  firstName: z.string().min(2, "First name is too short.").max(NAME_MAX, "First name is too long."),
-  lastName: z.string().min(2, "Last name is too short.").max(NAME_MAX, "Last name is too long."),
-  admissionNo: z.string().min(1, "Admission number is required.").max(ADMISSION_MAX, "Admission number is too long."),
-  admissionDate: z.string().min(1, "Admission date is required.").max(10),
+const base = {
+  firstName: z.string().min(1, "First name is required.").max(NAME, "First name is too long."),
+  lastName: z.string().max(NAME, "Last name is too long.").optional(),
   gender: z.enum(["male", "female", "other", "undisclosed"]).optional(),
-  phone: z.string().max(PHONE_MAX, "Phone is too long.").optional(),
-  isActive: z.coerce.boolean().optional(),
-});
+  dateOfBirth: z.string().max(10).optional(),
+  registrationDate: z.string().min(1, "Registration date is required.").max(10),
+  classId: z.string().uuid().optional().or(z.literal("")),
+  groupId: z.string().uuid().optional().or(z.literal("")),
+  parentName: z.string().max(80, "Parent name is too long.").optional(),
+  parentPhone: z.string().max(30, "Phone is too long.").optional(),
+  address: z.string().max(200, "Address is too long.").optional(),
+  notes: z.string().max(500, "Notes are too long.").optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+};
+
+export const createStudentSchema = z.object(base);
+export const updateStudentSchema = z.object({ studentId: z.string().uuid(), ...base });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
-
 export type ActionState = { error?: string; success?: string } | null;

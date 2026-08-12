@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string } | null;
 
-/** Enroll one or more students into a class (status = active). */
+/** Assign one or more students to a class. */
 export async function enrollStudents(
   classId: string,
   studentIds: string[],
@@ -15,28 +15,28 @@ export async function enrollStudents(
   if (studentIds.length === 0) return { error: "Select at least one student." };
 
   const supabase = await createClient();
-  const rows = studentIds.map((student_id) => ({
-    class_id: classId,
-    student_id,
-    status: "active" as const,
-  }));
-
-  const { error } = await supabase.from("enrollments").insert(rows);
+  const { error } = await supabase
+    .from("students")
+    .update({ class_id: classId })
+    .in("id", studentIds);
   if (error) return { error: error.message };
 
   revalidatePath(`/dashboard/classes/${classId}`);
   revalidatePath("/dashboard/classes");
-  return { success: `Enrolled ${studentIds.length} student(s).` };
+  return { success: `Assigned ${studentIds.length} student(s).` };
 }
 
-/** Remove a student from a class by deleting the enrollment row. */
+/** Remove a student from a class (unset class_id). */
 export async function removeEnrollment(
-  enrollmentId: string,
+  studentId: string,
   classId: string,
 ): Promise<ActionState> {
   await requireRole(["admin", "worker"]);
   const supabase = await createClient();
-  const { error } = await supabase.from("enrollments").delete().eq("id", enrollmentId);
+  const { error } = await supabase
+    .from("students")
+    .update({ class_id: null })
+    .eq("id", studentId);
   if (error) return { error: error.message };
 
   revalidatePath(`/dashboard/classes/${classId}`);

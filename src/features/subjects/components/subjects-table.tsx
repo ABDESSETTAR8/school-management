@@ -23,9 +23,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/ui/export-button";
+import type { CsvColumn } from "@/lib/csv";
 import { SubjectDialog } from "./subject-dialog";
 
 type Row = Subject & { classCount: number };
+
+const CSV_COLUMNS: CsvColumn<Row>[] = [
+  { header: "Code", value: (s) => s.code },
+  { header: "Name", value: (s) => s.name },
+  { header: "Description", value: (s) => s.description ?? "" },
+  { header: "Classes", value: (s) => s.classCount },
+];
 
 function DeleteButton({ subject }: { subject: Row }) {
   const [open, setOpen] = useState(false);
@@ -95,13 +104,16 @@ export function SubjectsTable({ subjects }: { subjects: Row[] }) {
             className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <SubjectDialog
-          trigger={
-            <Button>
-              <Plus className="size-4" /> Add subject
-            </Button>
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ExportButton filename="subjects" rows={filtered} columns={CSV_COLUMNS} />
+          <SubjectDialog
+            trigger={
+              <Button>
+                <Plus className="size-4" /> Add subject
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       <Card className="overflow-hidden">

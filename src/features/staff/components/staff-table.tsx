@@ -25,7 +25,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/ui/export-button";
+import type { CsvColumn } from "@/lib/csv";
 import { StaffDialog } from "./staff-dialog";
+
+const CSV_COLUMNS: CsvColumn<StaffListItem>[] = [
+  { header: "Name", value: (s) => `${s.profile.first_name} ${s.profile.last_name}` },
+  { header: "Employee No", value: (s) => s.employee_no },
+  { header: "Role", value: (s) => s.profile.role },
+  { header: "Email", value: (s) => s.profile.email },
+  { header: "Phone", value: (s) => s.profile.phone ?? "" },
+  { header: "Department", value: (s) => s.department ?? "" },
+  { header: "Job Title", value: (s) => s.job_title ?? "" },
+  { header: "Status", value: (s) => (s.profile.is_active ? "Active" : "Inactive") },
+];
 
 const ROLE_BADGE: Record<string, "default" | "secondary" | "success"> = {
   admin: "default",
@@ -109,13 +122,16 @@ export function StaffTable({ staff }: { staff: StaffListItem[] }) {
             className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <StaffDialog
-          trigger={
-            <Button>
-              <Plus className="size-4" /> Add staff
-            </Button>
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ExportButton filename="staff" rows={filtered} columns={CSV_COLUMNS} />
+          <StaffDialog
+            trigger={
+              <Button>
+                <Plus className="size-4" /> Add staff
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       <Card className="overflow-hidden">

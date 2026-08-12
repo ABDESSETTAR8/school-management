@@ -6,6 +6,7 @@ import { removeEnrollment } from "../actions";
 import type { EnrolledStudent } from "@/types/database.types";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-function RemoveButton({ enrollmentId, classId }: { enrollmentId: string; classId: string }) {
+function RemoveButton({ studentId, classId }: { studentId: string; classId: string }) {
   const [pending, startTransition] = useTransition();
   return (
     <Button
@@ -25,7 +26,7 @@ function RemoveButton({ enrollmentId, classId }: { enrollmentId: string; classId
       className="text-muted-foreground hover:text-destructive"
       aria-label="Remove from class"
       disabled={pending}
-      onClick={() => startTransition(() => void removeEnrollment(enrollmentId, classId))}
+      onClick={() => startTransition(() => void removeEnrollment(studentId, classId))}
     >
       {pending ? <Loader2 className="size-4 animate-spin" /> : <UserMinus className="size-4" />}
     </Button>
@@ -45,8 +46,7 @@ export function RosterTable({
     if (!q) return true;
     return (
       `${s.first_name} ${s.last_name}`.toLowerCase().includes(q) ||
-      s.admission_no.toLowerCase().includes(q) ||
-      s.email.toLowerCase().includes(q)
+      (s.parent_name?.toLowerCase().includes(q) ?? false)
     );
   });
 
@@ -54,7 +54,7 @@ export function RosterTable({
     return (
       <div className="flex flex-col items-center gap-2 py-16 text-center text-muted-foreground">
         <UserPlus className="size-8 opacity-40" />
-        <p className="text-sm">No students enrolled yet. Use “Enroll students” to add some.</p>
+        <p className="text-sm">No students in this class yet. Use “Assign students” to add some.</p>
       </div>
     );
   }
@@ -71,33 +71,38 @@ export function RosterTable({
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead>Student</TableHead>
-            <TableHead>Admission no.</TableHead>
-            <TableHead>Enrolled</TableHead>
+            <TableHead>Parent</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Registered</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filtered.map((s) => (
-            <TableRow key={s.enrollmentId}>
+            <TableRow key={s.studentId}>
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar>
                     <AvatarFallback>{getInitials(s.first_name, s.last_name)}</AvatarFallback>
                   </Avatar>
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">
-                      {s.first_name} {s.last_name}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">{s.email}</p>
-                  </div>
+                  <p className="truncate font-medium">
+                    {s.first_name} {s.last_name}
+                  </p>
                 </div>
               </TableCell>
-              <TableCell className="font-mono text-sm">{s.admission_no}</TableCell>
+              <TableCell className="text-sm">{s.parent_name ?? "—"}</TableCell>
+              <TableCell>
+                {s.status === "active" ? (
+                  <Badge variant="success">Active</Badge>
+                ) : (
+                  <Badge variant="secondary">Inactive</Badge>
+                )}
+              </TableCell>
               <TableCell className="text-sm text-muted-foreground">
-                {new Date(s.enrolled_at).toLocaleDateString()}
+                {new Date(s.registration_date).toLocaleDateString()}
               </TableCell>
               <TableCell className="text-right">
-                <RemoveButton enrollmentId={s.enrollmentId} classId={classId} />
+                <RemoveButton studentId={s.studentId} classId={classId} />
               </TableCell>
             </TableRow>
           ))}

@@ -70,17 +70,12 @@ export async function getAttendanceSheet(
     .maybeSingle<{ class_id: string }>();
   if (!cs) return { rows: [], sessionExists: false };
 
-  // Enrolled students in this class
-  const { data: enr } = await supabase
-    .from("enrollments")
-    .select(
-      `student:students ( id, admission_no, profile:profiles ( first_name, last_name ) )`,
-    )
+  // Students assigned to this class
+  const { data: studs } = await supabase
+    .from("students")
+    .select("id, first_name, last_name")
     .eq("class_id", cs.class_id)
-    .eq("status", "active")
-    .returns<
-      { student: { id: string; admission_no: string; profile: { first_name: string; last_name: string } | null } | null }[]
-    >();
+    .returns<{ id: string; first_name: string; last_name: string }[]>();
 
   // Existing session + records for this date
   const { data: session } = await supabase
@@ -100,13 +95,11 @@ export async function getAttendanceSheet(
     for (const r of recs ?? []) statusByStudent.set(r.student_id, r.status);
   }
 
-  const rows: AttendanceRow[] = (enr ?? [])
-    .filter((e) => e.student?.profile)
-    .map((e) => ({
-      studentId: e.student!.id,
-      name: `${e.student!.profile!.first_name} ${e.student!.profile!.last_name}`,
-      admission_no: e.student!.admission_no,
-      status: statusByStudent.get(e.student!.id) ?? null,
+  const rows: AttendanceRow[] = (studs ?? [])
+    .map((s) => ({
+      studentId: s.id,
+      name: `${s.first_name} ${s.last_name}`,
+      status: statusByStudent.get(s.id) ?? null,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -200,74 +193,7 @@ export type ChildAttendance = {
   recent: AttendanceHistoryItem[];
 };
 
-/** Attendance summaries for each child of the current parent. */
+/** Deprecated: parents no longer have accounts. Kept as a no-op for compatibility. */
 export async function getParentChildrenAttendance(): Promise<ChildAttendance[]> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  // Resolve this parent's guardian id, then their linked children.
-  const { data: guardian } = await supabase
-    .from("guardians")
-    .select("id")
-    .eq("profile_id", user.id)
-    .maybeSingle<{ id: string }>();
-  if (!guardian) return [];
-
-  const { data: links } = await supabase
-    .from("student_guardians")
-    .select(
-      `student:students ( id, admission_no, profile:profiles ( first_name, last_name ) )`,
-    )
-    .eq("guardian_id", guardian.id)
-    .returns<
-      { student: { id: string; admission_no: string; profile: { first_name: string; last_name: string } | null } | null }[]
-    >();
-
-  const children = (links ?? []).filter((l) => l.student?.profile).map((l) => l.student!);
-  if (children.length === 0) return [];
-
-  // Attendance records for all children in one query.
-  const ids = children.map((c) => c.id);
-  const { data: recs } = await supabase
-    .from("attendance_records")
-    .select(
-      `student_id, status,
-       session:attendance_sessions (
-         session_date,
-         class_subject:class_subjects ( subject:subjects ( name ), class:classes ( name ) )
-       )`,
-    )
-    .in("student_id", ids)
-    .returns<
-      {
-        student_id: string;
-        status: AttendanceStatus;
-        session: {
-          session_date: string;
-          class_subject: { subject: { name: string } | null; class: { name: string } | null } | null;
-        } | null;
-      }[]
-    >();
-
-  return children.map((c) => {
-    const items: AttendanceHistoryItem[] = (recs ?? [])
-      .filter((r) => r.student_id === c.id && r.session)
-      .map((r) => ({
-        date: r.session!.session_date,
-        status: r.status,
-        subject: r.session!.class_subject?.subject?.name ?? "—",
-        className: r.session!.class_subject?.class?.name ?? "—",
-      }))
-      .sort((a, b) => b.date.localeCompare(a.date));
-    return {
-      studentId: c.id,
-      name: `${c.profile!.first_name} ${c.profile!.last_name}`,
-      admission_no: c.admission_no,
-      summary: summarize(items.map((i) => i.status)),
-      recent: items.slice(0, 5),
-    };
-  });
+  return [];
 }

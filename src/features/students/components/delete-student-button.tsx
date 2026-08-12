@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/dialog";
 
 export function DeleteStudentButton({
-  profileId,
+  studentId,
   name,
 }: {
-  profileId: string;
+  studentId: string;
   name: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -27,7 +27,7 @@ export function DeleteStudentButton({
   function onConfirm() {
     setError(null);
     startTransition(async () => {
-      const res = await deleteStudent(profileId);
+      const res = await deleteStudent(studentId);
       if (res?.error) setError(res.error);
       else setOpen(false);
     });
@@ -48,7 +48,7 @@ export function DeleteStudentButton({
         <DialogHeader>
           <DialogTitle>Remove {name}?</DialogTitle>
           <DialogDescription>
-            This permanently deletes the student&apos;s account and records. This cannot be undone.
+            This permanently deletes the student record. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
         {error && <p className="text-sm text-destructive">{error}</p>}

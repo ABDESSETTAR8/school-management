@@ -12,9 +12,9 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   admin: [
     { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
-    { title: "Parents", href: "/dashboard/guardians", icon: "Users2" },
     { title: "Staff", href: "/dashboard/staff", icon: "UserCog" },
     { title: "Classes", href: "/dashboard/classes", icon: "Users" },
+    { title: "Groups", href: "/dashboard/groups", icon: "Layers" },
     { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
     { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
     { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
@@ -36,9 +36,9 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   worker: [
     { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
-    { title: "Parents", href: "/dashboard/guardians", icon: "Users2" },
     { title: "Staff", href: "/dashboard/staff", icon: "UserCog" },
     { title: "Classes", href: "/dashboard/classes", icon: "Users" },
+    { title: "Groups", href: "/dashboard/groups", icon: "Layers" },
     { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
     { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
     { title: "Settings", href: "/dashboard/settings", icon: "Settings" },

@@ -8,6 +8,7 @@ import {
   ClipboardList,
   UserCog,
   Settings,
+  Layers,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,6 +27,7 @@ export const ICONS = {
   ClipboardList,
   UserCog,
   Settings,
+  Layers,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof ICONS;

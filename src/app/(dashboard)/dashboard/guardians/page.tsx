@@ -1,23 +1,7 @@
-import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
-import { getGuardians, getLinkableStudents } from "@/features/guardians/queries";
-import { GuardiansList } from "@/features/guardians/components/guardians-list";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Parents" };
-
-export default async function GuardiansPage() {
-  await requireRole(["admin", "worker"]);
-  const [guardians, students] = await Promise.all([getGuardians(), getLinkableStudents()]);
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Parents &amp; guardians</h1>
-        <p className="text-sm text-muted-foreground">
-          Create parent accounts and link them to their children.
-        </p>
-      </div>
-      <GuardiansList guardians={guardians} students={students} />
-    </div>
-  );
+// The Parents module has been removed — parent details now live on each
+// student's record. Redirect any old links to Students.
+export default function GuardiansPage() {
+  redirect("/dashboard/students");
 }

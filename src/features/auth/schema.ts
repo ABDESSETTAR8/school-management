@@ -14,10 +14,7 @@ export const DEMO_PASSWORD = "Password123!";
 
 export const DEMO_ACCOUNTS = [
   { role: "admin", label: "Admin", email: "admin@demo.school", blurb: "Full access" },
-  { role: "worker", label: "Worker", email: "worker@demo.school", blurb: "Full access" },
-  { role: "teacher", label: "Teacher", email: "teacher@demo.school", blurb: "Classes & attendance" },
-  { role: "student", label: "Student", email: "student@demo.school", blurb: "My attendance" },
-  { role: "parent", label: "Parent", email: "parent@demo.school", blurb: "Children's attendance" },
+  { role: "worker", label: "Worker", email: "worker@demo.school", blurb: "Staff access" },
 ] as const;
 
 export const DEMO_EMAILS = DEMO_ACCOUNTS.map((a) => a.email) as readonly string[];

@@ -19,13 +19,22 @@ export type Profile = {
   updated_at: string;
 };
 
+export type StudentStatus = "active" | "inactive";
+
 export type Student = {
   id: string;
-  profile_id: string;
-  admission_no: string;
-  admission_date: string;
-  created_at: string;
-  updated_at: string;
+  first_name: string;
+  last_name: string;
+  gender: Gender | null;
+  date_of_birth: string | null;
+  registration_date: string;
+  class_id: string | null;
+  group_id: string | null;
+  parent_name: string | null;
+  parent_phone: string | null;
+  address: string | null;
+  notes: string | null;
+  status: StudentStatus;
 };
 
 export type Staff = {
@@ -122,16 +131,50 @@ export type Enrollment = {
   enrolled_at: string;
 };
 
-/** A student row joined with its profile and current class, for list views. */
+export type Group = {
+  id: string;
+  name: string;
+  class_id: string | null;
+  teacher_id: string | null;
+  classroom: string | null;
+  schedule: string | null;
+  capacity: number;
+  monthly_fee: number;
+  is_active: boolean;
+};
+
+/** A group with computed roster size and monthly revenue, for list views. */
+export type GroupListItem = {
+  id: string;
+  name: string;
+  className: string | null;
+  teacherName: string | null;
+  classroom: string | null;
+  schedule: string | null;
+  capacity: number;
+  monthlyFee: number;
+  studentsCount: number;
+  revenue: number;
+  isActive: boolean;
+};
+
+/** A student record with its class & group names, for list views. */
 export type StudentListItem = {
   id: string;
-  admission_no: string;
-  admission_date: string;
-  profile: Pick<
-    Profile,
-    "id" | "first_name" | "last_name" | "email" | "phone" | "gender" | "is_active"
-  >;
-  currentClass: { id: string; name: string; grade_level: number } | null;
+  first_name: string;
+  last_name: string;
+  gender: Gender | null;
+  date_of_birth: string | null;
+  class_id: string | null;
+  group_id: string | null;
+  className: string | null;
+  groupName: string | null;
+  parent_name: string | null;
+  parent_phone: string | null;
+  address: string | null;
+  notes: string | null;
+  status: StudentStatus;
+  registration_date: string;
 };
 
 /** A class with its computed roster size and homeroom teacher name. */
@@ -145,24 +188,22 @@ export type ClassListItem = {
   academicYear: string;
 };
 
-/** A student enrolled in a specific class. */
+/** A student assigned to a specific class. */
 export type EnrolledStudent = {
-  enrollmentId: string;
   studentId: string;
-  admission_no: string;
   first_name: string;
   last_name: string;
-  email: string;
-  enrolled_at: string;
+  parent_name: string | null;
+  parent_phone: string | null;
+  status: StudentStatus;
+  registration_date: string;
 };
 
-/** A student with no active enrollment, available to add to a class. */
+/** A student with no class assigned, available to add to a class. */
 export type EnrollableStudent = {
   id: string;
-  admission_no: string;
   first_name: string;
   last_name: string;
-  email: string;
 };
 
 /** A staff member presented as a selectable homeroom teacher. */
@@ -217,7 +258,6 @@ export type ClassSubjectOption = {
 export type AttendanceRow = {
   studentId: string;
   name: string;
-  admission_no: string;
   status: AttendanceStatus | null;
 };
 
@@ -250,6 +290,7 @@ export type Database = {
       academic_years: Table<AcademicYear>;
       subjects: Table<Subject>;
       classes: Table<Class>;
+      groups: Table<Group>;
       terms: Table<Term>;
       guardians: Table<Guardian>;
       student_guardians: Table<StudentGuardian>;

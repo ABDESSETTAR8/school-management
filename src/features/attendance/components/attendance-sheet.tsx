@@ -105,7 +105,6 @@ export function AttendanceSheet({
             </Avatar>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{r.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{r.admission_no}</p>
             </div>
             <div className="flex gap-1">
               {STATUSES.map((s) => {

@@ -4,50 +4,56 @@ import type { StudentListItem } from "@/types/database.types";
 
 type RawStudent = {
   id: string;
-  admission_no: string;
-  admission_date: string;
-  profile: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string | null;
-    gender: StudentListItem["profile"]["gender"];
-    is_active: boolean;
-  } | null;
-  enrollments: {
-    status: string;
-    class: { id: string; name: string; grade_level: number } | null;
-  }[];
+  first_name: string;
+  last_name: string;
+  gender: StudentListItem["gender"];
+  date_of_birth: string | null;
+  parent_name: string | null;
+  parent_phone: string | null;
+  address: string | null;
+  notes: string | null;
+  status: StudentListItem["status"];
+  registration_date: string;
+  class_id: string | null;
+  group_id: string | null;
+  class: { name: string } | null;
+  group: { name: string } | null;
 };
 
-/** All students with their profile and current (active) class. Admin/staff only via RLS. */
+/** All students with their class & group names. Staff only via RLS. */
 export async function getStudents(): Promise<StudentListItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("students")
     .select(
-      `id, admission_no, admission_date,
-       profile:profiles ( id, first_name, last_name, email, phone, gender, is_active ),
-       enrollments ( status, class:classes ( id, name, grade_level ) )`,
+      `id, first_name, last_name, gender, date_of_birth,
+       parent_name, parent_phone, address, notes, status, registration_date,
+       class_id, group_id,
+       class:classes ( name ),
+       group:groups ( name )`,
     )
-    .order("admission_no", { ascending: true })
+    .order("first_name", { ascending: true })
     .returns<RawStudent[]>();
 
   if (error) throw new Error(error.message);
 
-  return (data ?? [])
-    .filter((s) => s.profile)
-    .map((s) => {
-      const active = s.enrollments?.find((e) => e.status === "active");
-      return {
-        id: s.id,
-        admission_no: s.admission_no,
-        admission_date: s.admission_date,
-        profile: s.profile!,
-        currentClass: active?.class ?? null,
-      };
-    });
+  return (data ?? []).map((s) => ({
+    id: s.id,
+    first_name: s.first_name,
+    last_name: s.last_name,
+    gender: s.gender,
+    date_of_birth: s.date_of_birth,
+    class_id: s.class_id,
+    group_id: s.group_id,
+    className: s.class?.name ?? null,
+    groupName: s.group?.name ?? null,
+    parent_name: s.parent_name,
+    parent_phone: s.parent_phone,
+    address: s.address,
+    notes: s.notes,
+    status: s.status,
+    registration_date: s.registration_date,
+  }));
 }
 
 export async function getStudentCount(): Promise<number> {

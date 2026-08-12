@@ -16,22 +16,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExportButton } from "@/components/ui/export-button";
+import type { CsvColumn } from "@/lib/csv";
 import { StudentDialog } from "./student-dialog";
 import { DeleteStudentButton } from "./delete-student-button";
 
-export function StudentsTable({ students }: { students: StudentListItem[] }) {
+const CSV_COLUMNS: CsvColumn<StudentListItem>[] = [
+  { header: "First Name", value: (s) => s.first_name },
+  { header: "Last Name", value: (s) => s.last_name },
+  { header: "Class", value: (s) => s.className ?? "" },
+  { header: "Group", value: (s) => s.groupName ?? "" },
+  { header: "Parent", value: (s) => s.parent_name ?? "" },
+  { header: "Phone", value: (s) => s.parent_phone ?? "" },
+  { header: "Address", value: (s) => s.address ?? "" },
+  { header: "Status", value: (s) => s.status },
+  { header: "Registration Date", value: (s) => s.registration_date },
+];
+
+export function StudentsTable({
+  students,
+  classes,
+  groups,
+}: {
+  students: StudentListItem[];
+  classes: { id: string; name: string }[];
+  groups: { id: string; name: string }[];
+}) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return students;
     return students.filter((s) => {
-      const name = `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase();
+      const name = `${s.first_name} ${s.last_name}`.toLowerCase();
       return (
         name.includes(q) ||
-        s.profile.email.toLowerCase().includes(q) ||
-        s.admission_no.toLowerCase().includes(q) ||
-        (s.currentClass?.name.toLowerCase().includes(q) ?? false)
+        (s.parent_name?.toLowerCase().includes(q) ?? false) ||
+        (s.parent_phone?.toLowerCase().includes(q) ?? false) ||
+        (s.className?.toLowerCase().includes(q) ?? false) ||
+        (s.groupName?.toLowerCase().includes(q) ?? false)
       );
     });
   }, [students, query]);
@@ -44,17 +67,22 @@ export function StudentsTable({ students }: { students: StudentListItem[] }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search students…"
+            placeholder="Search name, parent, phone…"
             className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <StudentDialog
-          trigger={
-            <Button>
-              <Plus className="size-4" /> Add student
-            </Button>
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ExportButton filename="students" rows={filtered} columns={CSV_COLUMNS} />
+          <StudentDialog
+            classes={classes}
+            groups={groups}
+            trigger={
+              <Button>
+                <Plus className="size-4" /> Register student
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       <Card className="overflow-hidden">
@@ -62,8 +90,10 @@ export function StudentsTable({ students }: { students: StudentListItem[] }) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Student</TableHead>
-              <TableHead>Admission no.</TableHead>
               <TableHead>Class</TableHead>
+              <TableHead>Group</TableHead>
+              <TableHead>Parent</TableHead>
+              <TableHead>Phone</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -71,7 +101,7 @@ export function StudentsTable({ students }: { students: StudentListItem[] }) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5}>
+                <TableCell colSpan={7}>
                   <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
                     <UserPlus className="size-8 opacity-40" />
                     <p className="text-sm">
@@ -86,28 +116,19 @@ export function StudentsTable({ students }: { students: StudentListItem[] }) {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarFallback>
-                          {getInitials(s.profile.first_name, s.profile.last_name)}
-                        </AvatarFallback>
+                        <AvatarFallback>{getInitials(s.first_name, s.last_name)}</AvatarFallback>
                       </Avatar>
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">
-                          {s.profile.first_name} {s.profile.last_name}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">{s.profile.email}</p>
-                      </div>
+                      <p className="truncate font-medium">
+                        {s.first_name} {s.last_name}
+                      </p>
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{s.admission_no}</TableCell>
+                  <TableCell className="text-sm">{s.className ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{s.groupName ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{s.parent_name ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{s.parent_phone ?? "—"}</TableCell>
                   <TableCell>
-                    {s.currentClass ? (
-                      <span className="text-sm">{s.currentClass.name}</span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">Unassigned</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {s.profile.is_active ? (
+                    {s.status === "active" ? (
                       <Badge variant="success">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
@@ -117,16 +138,17 @@ export function StudentsTable({ students }: { students: StudentListItem[] }) {
                     <div className="flex items-center justify-end gap-1">
                       <StudentDialog
                         student={s}
+                        classes={classes}
+                        groups={groups}
+                        currentClassId={s.class_id}
+                        currentGroupId={s.group_id}
                         trigger={
                           <Button variant="ghost" size="icon" aria-label="Edit student">
                             <Pencil className="size-4" />
                           </Button>
                         }
                       />
-                      <DeleteStudentButton
-                        profileId={s.profile.id}
-                        name={`${s.profile.first_name} ${s.profile.last_name}`}
-                      />
+                      <DeleteStudentButton studentId={s.id} name={`${s.first_name} ${s.last_name}`} />
                     </div>
                   </TableCell>
                 </TableRow>
