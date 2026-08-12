@@ -11,7 +11,7 @@ type RawGroup = {
   monthly_fee: number;
   is_active: boolean;
   class: { name: string } | null;
-  teacher: { profile: { first_name: string; last_name: string } | null } | null;
+  teacher: { first_name: string; last_name: string } | null;
   students: { count: number }[];
 };
 
@@ -23,7 +23,7 @@ export async function getGroups(): Promise<GroupListItem[]> {
     .select(
       `id, name, classroom, schedule, capacity, monthly_fee, is_active,
        class:classes ( name ),
-       teacher:staff ( profile:profiles ( first_name, last_name ) ),
+       teacher:teachers ( first_name, last_name ),
        students ( count )`,
     )
     .order("name", { ascending: true })
@@ -38,8 +38,8 @@ export async function getGroups(): Promise<GroupListItem[]> {
       id: g.id,
       name: g.name,
       className: g.class?.name ?? null,
-      teacherName: g.teacher?.profile
-        ? `${g.teacher.profile.first_name} ${g.teacher.profile.last_name}`
+      teacherName: g.teacher
+        ? `${g.teacher.first_name} ${g.teacher.last_name}`
         : null,
       classroom: g.classroom,
       schedule: g.schedule,

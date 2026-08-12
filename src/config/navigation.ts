@@ -12,7 +12,8 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   admin: [
     { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
-    { title: "Staff", href: "/dashboard/staff", icon: "UserCog" },
+    { title: "Teachers", href: "/dashboard/teachers", icon: "Presentation" },
+    { title: "Workers", href: "/dashboard/staff", icon: "UserCog" },
     { title: "Classes", href: "/dashboard/classes", icon: "Users" },
     { title: "Groups", href: "/dashboard/groups", icon: "Layers" },
     { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
@@ -36,7 +37,8 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   worker: [
     { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
-    { title: "Staff", href: "/dashboard/staff", icon: "UserCog" },
+    { title: "Teachers", href: "/dashboard/teachers", icon: "Presentation" },
+    { title: "Workers", href: "/dashboard/staff", icon: "UserCog" },
     { title: "Classes", href: "/dashboard/classes", icon: "Users" },
     { title: "Groups", href: "/dashboard/groups", icon: "Layers" },
     { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },

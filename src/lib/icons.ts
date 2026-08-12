@@ -9,6 +9,7 @@ import {
   UserCog,
   Settings,
   Layers,
+  Presentation,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,6 +29,7 @@ export const ICONS = {
   UserCog,
   Settings,
   Layers,
+  Presentation,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof ICONS;

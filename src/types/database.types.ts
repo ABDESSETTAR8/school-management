@@ -131,6 +131,45 @@ export type Enrollment = {
   enrolled_at: string;
 };
 
+export type Teacher = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  email: string | null;
+  subjects: string[];
+  salary: number;
+  notes: string | null;
+  is_active: boolean;
+};
+
+export type TeacherPayment = {
+  id: string;
+  teacher_id: string;
+  amount: number;
+  payment_date: string;
+  method: string | null;
+  note: string | null;
+};
+
+/** A teacher with payment summary + groups count, for list views. */
+export type TeacherListItem = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  email: string | null;
+  subjects: string[];
+  salary: number;
+  notes: string | null;
+  isActive: boolean;
+  groupsCount: number;
+  paidThisMonth: number;
+  remaining: number;
+  lastPaymentDate: string | null;
+  payments: TeacherPayment[];
+};
+
 export type Group = {
   id: string;
   name: string;
@@ -291,6 +330,8 @@ export type Database = {
       subjects: Table<Subject>;
       classes: Table<Class>;
       groups: Table<Group>;
+      teachers: Table<Teacher>;
+      teacher_payments: Table<TeacherPayment>;
       terms: Table<Term>;
       guardians: Table<Guardian>;
       student_guardians: Table<StudentGuardian>;
