@@ -21,6 +21,7 @@ const ADMIN_NAV: NavItem[] = [
   { key: "subjects", title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
   { key: "attendance", title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
   { key: "settings", title: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  { key: "audit", title: "Audit Log", href: "/dashboard/audit", icon: "History" },
 ];
 
 const WORKER_NAV: NavItem[] = [

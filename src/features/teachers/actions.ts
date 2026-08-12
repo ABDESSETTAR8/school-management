@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { createNotification } from "@/features/notifications/create";
+import { logAudit } from "@/features/audit/log";
 import { paymentSchema, teacherSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/teachers";
@@ -48,6 +49,7 @@ export async function deleteTeacher(teacherId: string): Promise<ActionState> {
   const supabase = await createClient();
   const { error } = await supabase.from("teachers").delete().eq("id", teacherId);
   if (error) return { error: error.message };
+  await logAudit("delete", "teacher", teacherId);
   revalidatePath(PATH);
   return { success: "Teacher removed." };
 }
@@ -69,6 +71,7 @@ export async function recordPayment(_prev: ActionState, formData: FormData): Pro
   if (error) return { error: error.message };
 
   await createNotification("payment", "Teacher payment recorded", `${d.amount.toLocaleString()} DZD`);
+  await logAudit("payment", "teacher", `${d.amount} DZD to teacher ${d.teacherId}`);
   revalidatePath(PATH);
   return { success: "Payment recorded." };
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createStaffSchema, updateStaffSchema, type ActionState } from "./schema";
 import { createNotification } from "@/features/notifications/create";
+import { logAudit } from "@/features/audit/log";
 import { PERMISSION_KEYS } from "@/config/permissions";
 
 const PATH = "/dashboard/staff";
@@ -20,6 +21,7 @@ export async function setWorkerPermissions(
   const supabase = await createClient();
   const { error } = await supabase.from("profiles").update({ permissions: valid }).eq("id", profileId);
   if (error) return { error: error.message };
+  await logAudit("permissions", "worker", `${profileId}: [${valid.join(", ")}]`);
   revalidatePath(PATH);
   return { success: "Permissions updated." };
 }
@@ -65,6 +67,7 @@ export async function createStaff(_prev: ActionState, formData: FormData): Promi
   }
 
   await createNotification("worker", `${d.role === "worker" ? "Worker" : "Staff"} added`, `${d.firstName} ${d.lastName}`.trim());
+  await logAudit("create", "worker", `${d.firstName} ${d.lastName} (${d.role})`);
   revalidatePath(PATH);
   return { success: "Staff member created." };
 }
@@ -116,6 +119,7 @@ export async function deleteStaff(profileId: string): Promise<ActionState> {
   const { error } = await admin.auth.admin.deleteUser(profileId);
   if (error) return { error: error.message };
 
+  await logAudit("delete", "worker", profileId);
   revalidatePath(PATH);
   return { success: "Staff member removed." };
 }

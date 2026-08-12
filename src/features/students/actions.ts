@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { createNotification } from "@/features/notifications/create";
+import { logAudit } from "@/features/audit/log";
 import { createStudentSchema, updateStudentSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/students";
@@ -79,6 +80,7 @@ export async function deleteStudent(studentId: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   await createNotification("student", "Student removed");
+  await logAudit("delete", "student", studentId);
   revalidatePath(PATH);
   revalidatePath("/dashboard/groups");
   return { success: "Student removed." };

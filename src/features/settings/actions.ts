@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { schoolSchema, termSchema, yearSchema, type ActionState } from "./schema";
+import { logAudit } from "@/features/audit/log";
 
 const PATH = "/dashboard/settings";
 
@@ -26,6 +27,7 @@ export async function updateSchoolSettings(_prev: ActionState, formData: FormDat
     .eq("id", true);
   if (error) return { error: error.message };
 
+  await logAudit("update", "settings", d.schoolName);
   revalidatePath(PATH);
   revalidatePath("/dashboard", "layout");
   return { success: "School settings saved." };
