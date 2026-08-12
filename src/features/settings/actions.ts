@@ -3,9 +3,33 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { termSchema, yearSchema, type ActionState } from "./schema";
+import { schoolSchema, termSchema, yearSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/settings";
+
+export async function updateSchoolSettings(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requirePermission("settings");
+  const parsed = schoolSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
+  const d = parsed.data;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("school_settings")
+    .update({
+      school_name: d.schoolName,
+      email: d.email || null,
+      phone: d.phone || null,
+      address: d.address || null,
+      logo_url: d.logoUrl || null,
+    })
+    .eq("id", true);
+  if (error) return { error: error.message };
+
+  revalidatePath(PATH);
+  revalidatePath("/dashboard", "layout");
+  return { success: "School settings saved." };
+}
 
 export async function createYear(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requirePermission("settings");

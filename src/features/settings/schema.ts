@@ -24,6 +24,15 @@ export const termSchema = z
     path: ["endDate"],
   });
 
+export const schoolSchema = z.object({
+  schoolName: z.string().min(1, "School name is required.").max(80, "Name is too long."),
+  email: z.string().email("Enter a valid email.").max(120).optional().or(z.literal("")),
+  phone: z.string().max(30).optional(),
+  address: z.string().max(200).optional(),
+  logoUrl: z.string().url("Enter a valid URL.").max(300).optional().or(z.literal("")),
+});
+
+export type SchoolInput = z.infer<typeof schoolSchema>;
 export type YearInput = z.infer<typeof yearSchema>;
 export type TermInput = z.infer<typeof termSchema>;
 export type ActionState = { error?: string; success?: string } | null;

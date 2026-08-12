@@ -101,6 +101,15 @@ export type LinkableStudent = {
   name: string;
 };
 
+export type SchoolSettings = {
+  id: boolean;
+  school_name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  logo_url: string | null;
+};
+
 export type TermKind = "semester" | "trimester" | "quarter";
 
 export type Term = {

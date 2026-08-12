@@ -1,6 +1,26 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { AcademicYearWithTerms } from "@/types/database.types";
+import type { AcademicYearWithTerms, SchoolSettings } from "@/types/database.types";
+
+/** The single school-settings row (creates a sensible default if missing). */
+export async function getSchoolSettings(): Promise<SchoolSettings> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("school_settings")
+    .select("id, school_name, email, phone, address, logo_url")
+    .maybeSingle<SchoolSettings>();
+
+  return (
+    data ?? {
+      id: true,
+      school_name: "My School",
+      email: null,
+      phone: null,
+      address: null,
+      logo_url: null,
+    }
+  );
+}
 
 /** All academic years with their terms, newest first. */
 export async function getAcademicYears(): Promise<AcademicYearWithTerms[]> {
