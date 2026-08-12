@@ -77,12 +77,7 @@ export default async function AuditPage({
         </Table>
       </Card>
 
-      <Pagination
-        page={page}
-        pageSize={PAGE_SIZE}
-        total={total}
-        makeHref={(p) => `/dashboard/audit?page=${p}`}
-      />
+      <Pagination page={page} pageSize={PAGE_SIZE} total={total} baseHref="/dashboard/audit" />
     </div>
   );
 }

@@ -162,7 +162,13 @@ export function StudentsTable({
         </Table>
       </Card>
 
-      <Pagination page={page} pageSize={pageSize} total={total} makeHref={(p) => hrefFor(q, p)} />
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        baseHref="/dashboard/students"
+        query={{ q }}
+      />
     </div>
   );
 }
