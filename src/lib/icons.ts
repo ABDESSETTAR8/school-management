@@ -10,6 +10,9 @@ import {
   Settings,
   Layers,
   Presentation,
+  Wallet,
+  TrendingUp,
+  Clock,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,6 +33,9 @@ export const ICONS = {
   Settings,
   Layers,
   Presentation,
+  Wallet,
+  TrendingUp,
+  Clock,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof ICONS;
