@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getTeachers } from "@/features/teachers/queries";
 import { TeachersTable } from "@/features/teachers/components/teachers-table";
 
 export const metadata: Metadata = { title: "Teachers" };
 
 export default async function TeachersPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("teachers");
   const teachers = await getTeachers();
 
   return (

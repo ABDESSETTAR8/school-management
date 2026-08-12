@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getStudents } from "@/features/students/queries";
 import { getClasses } from "@/features/classes/queries";
 import { getGroups } from "@/features/groups/queries";
@@ -8,7 +8,7 @@ import { StudentsTable } from "@/features/students/components/students-table";
 export const metadata: Metadata = { title: "Students" };
 
 export default async function StudentsPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("students");
   const [students, classList, groupList] = await Promise.all([
     getStudents(),
     getClasses(),

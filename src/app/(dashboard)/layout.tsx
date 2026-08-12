@@ -13,7 +13,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar role={profile.role} />
+      <Sidebar role={profile.role} permissions={profile.permissions ?? []} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar profile={profile} roleLabel={roleLabel} />
         <main className="flex-1 p-6 lg:p-8">{children}</main>

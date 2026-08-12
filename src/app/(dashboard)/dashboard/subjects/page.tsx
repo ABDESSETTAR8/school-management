@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getSubjects } from "@/features/subjects/queries";
 import { SubjectsTable } from "@/features/subjects/components/subjects-table";
 
 export const metadata: Metadata = { title: "Subjects" };
 
 export default async function SubjectsPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("subjects");
   const subjects = await getSubjects();
 
   return (

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import type { AttendanceStatus } from "@/types/database.types";
 
@@ -15,7 +15,7 @@ export async function saveGroupAttendance(
   date: string,
   entries: AttendanceEntry[],
 ): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("attendance");
   if (entries.length === 0) return { error: "No students to record." };
 
   const supabase = await createClient();

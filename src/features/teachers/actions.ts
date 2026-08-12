@@ -1,14 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { paymentSchema, teacherSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/teachers";
 
 export async function saveTeacher(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("teachers");
   const parsed = teacherSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
   const d = parsed.data;
@@ -42,7 +42,7 @@ export async function saveTeacher(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function deleteTeacher(teacherId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("teachers");
   const supabase = await createClient();
   const { error } = await supabase.from("teachers").delete().eq("id", teacherId);
   if (error) return { error: error.message };
@@ -51,7 +51,7 @@ export async function deleteTeacher(teacherId: string): Promise<ActionState> {
 }
 
 export async function recordPayment(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("teachers");
   const parsed = paymentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
   const d = parsed.data;

@@ -18,7 +18,7 @@ export async function getStaff(): Promise<StaffListItem[]> {
     .from("staff")
     .select(
       `id, employee_no, job_title, department, hire_date,
-       profile:profiles ( id, first_name, last_name, email, phone, role, is_active )`,
+       profile:profiles ( id, first_name, last_name, email, phone, role, is_active, permissions )`,
     )
     .order("employee_no", { ascending: true })
     .returns<RawStaff[]>();

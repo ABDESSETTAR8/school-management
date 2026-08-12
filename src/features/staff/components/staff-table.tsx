@@ -28,6 +28,7 @@ import {
 import { ExportButton } from "@/components/ui/export-button";
 import type { CsvColumn } from "@/lib/csv";
 import { StaffDialog } from "./staff-dialog";
+import { PermissionsDialog } from "./permissions-dialog";
 
 const CSV_COLUMNS: CsvColumn<StaffListItem>[] = [
   { header: "Name", value: (s) => `${s.profile.first_name} ${s.profile.last_name}` },
@@ -192,6 +193,7 @@ export function StaffTable({ staff }: { staff: StaffListItem[] }) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
+                      {s.profile.role === "worker" && <PermissionsDialog worker={s} />}
                       <StaffDialog
                         staff={s}
                         trigger={

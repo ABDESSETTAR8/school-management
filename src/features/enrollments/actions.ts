@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string } | null;
@@ -11,7 +11,7 @@ export async function enrollStudents(
   classId: string,
   studentIds: string[],
 ): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("classes");
   if (studentIds.length === 0) return { error: "Select at least one student." };
 
   const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function removeEnrollment(
   studentId: string,
   classId: string,
 ): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("classes");
   const supabase = await createClient();
   const { error } = await supabase
     .from("students")

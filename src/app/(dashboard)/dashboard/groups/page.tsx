@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getGroups } from "@/features/groups/queries";
 import { getClasses } from "@/features/classes/queries";
 import { getTeacherOptions } from "@/features/teachers/queries";
@@ -8,7 +8,7 @@ import { GroupsGrid } from "@/features/groups/components/groups-grid";
 export const metadata: Metadata = { title: "Groups" };
 
 export default async function GroupsPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("groups");
   const [groups, classList, teachers] = await Promise.all([
     getGroups(),
     getClasses(),

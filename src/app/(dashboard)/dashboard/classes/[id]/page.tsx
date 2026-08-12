@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, GraduationCap, Users } from "lucide-react";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import {
   getClass,
   getEnrollableStudents,
@@ -20,7 +20,7 @@ export default async function ClassDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("classes");
   const { id } = await params;
 
   const cls = await getClass(id);

@@ -37,3 +37,17 @@ export async function requireRole(allowed: UserRole[]) {
   if (!allowed.includes(user.profile.role)) redirect("/dashboard");
   return user;
 }
+
+/** Admins have every permission; workers only those the admin granted. */
+export function hasPermission(profile: Profile, key: string): boolean {
+  if (profile.role === "admin") return true;
+  if (profile.role === "worker") return (profile.permissions ?? []).includes(key);
+  return false;
+}
+
+/** Require a given section permission (admins always pass). */
+export async function requirePermission(key: string) {
+  const user = await requireUser();
+  if (!hasPermission(user.profile, key)) redirect("/dashboard");
+  return user;
+}

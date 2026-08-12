@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getClasses, getTeacherOptions } from "@/features/classes/queries";
 import { ClassesGrid } from "@/features/classes/components/classes-grid";
 
 export const metadata: Metadata = { title: "Classes" };
 
 export default async function ClassesPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("classes");
   const [classes, teachers] = await Promise.all([getClasses(), getTeacherOptions()]);
 
   return (

@@ -5,11 +5,26 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createStaffSchema, updateStaffSchema, type ActionState } from "./schema";
+import { PERMISSION_KEYS } from "@/config/permissions";
 
 const PATH = "/dashboard/staff";
 
+/** Set which sections a worker can access. Admin only. */
+export async function setWorkerPermissions(
+  profileId: string,
+  permissions: string[],
+): Promise<ActionState> {
+  await requireRole(["admin"]);
+  const valid = permissions.filter((p) => (PERMISSION_KEYS as readonly string[]).includes(p));
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ permissions: valid }).eq("id", profileId);
+  if (error) return { error: error.message };
+  revalidatePath(PATH);
+  return { success: "Permissions updated." };
+}
+
 export async function createStaff(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requireRole(["admin"]);
 
   const parsed = createStaffSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -53,7 +68,7 @@ export async function createStaff(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function updateStaff(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requireRole(["admin"]);
 
   const parsed = updateStaffSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -87,7 +102,7 @@ export async function updateStaff(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function deleteStaff(profileId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requireRole(["admin"]);
 
   let admin;
   try {

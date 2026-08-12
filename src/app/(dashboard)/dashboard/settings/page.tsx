@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { getAcademicYears } from "@/features/settings/queries";
 import { YearsManager } from "@/features/settings/components/years-manager";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const years = await getAcademicYears();
 
   return (

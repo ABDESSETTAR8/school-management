@@ -1,14 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { termSchema, yearSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/settings";
 
 export async function createYear(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const parsed = yearSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
   const d = parsed.data;
@@ -25,7 +25,7 @@ export async function createYear(_prev: ActionState, formData: FormData): Promis
 }
 
 export async function setCurrentYear(yearId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const supabase = await createClient();
 
   // Only one current year allowed (enforced by a partial unique index),
@@ -48,7 +48,7 @@ export async function setCurrentYear(yearId: string): Promise<ActionState> {
 }
 
 export async function deleteYear(yearId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const supabase = await createClient();
   const { error } = await supabase.from("academic_years").delete().eq("id", yearId);
   if (error) {
@@ -64,7 +64,7 @@ export async function deleteYear(yearId: string): Promise<ActionState> {
 }
 
 export async function createTerm(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const parsed = termSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
   const d = parsed.data;
@@ -85,7 +85,7 @@ export async function createTerm(_prev: ActionState, formData: FormData): Promis
 }
 
 export async function deleteTerm(termId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("settings");
   const supabase = await createClient();
   const { error } = await supabase.from("terms").delete().eq("id", termId);
   if (error) return { error: error.message };

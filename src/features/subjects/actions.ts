@@ -1,14 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { subjectSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/subjects";
 
 export async function saveSubject(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("subjects");
 
   const parsed = subjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -36,7 +36,7 @@ export async function saveSubject(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function deleteSubject(subjectId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("subjects");
   const supabase = await createClient();
   const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
   if (error) {

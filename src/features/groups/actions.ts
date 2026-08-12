@@ -1,14 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { groupSchema, type ActionState } from "./schema";
 
 const PATH = "/dashboard/groups";
 
 export async function saveGroup(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("groups");
 
   const parsed = groupSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
@@ -40,7 +40,7 @@ export async function saveGroup(_prev: ActionState, formData: FormData): Promise
 }
 
 export async function deleteGroup(groupId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("groups");
   const supabase = await createClient();
   const { error } = await supabase.from("groups").delete().eq("id", groupId);
   if (error) return { error: error.message };

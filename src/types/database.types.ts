@@ -15,6 +15,7 @@ export type Profile = {
   date_of_birth: string | null;
   gender: Gender | null;
   is_active: boolean;
+  permissions: string[];
   created_at: string;
   updated_at: string;
 };
@@ -255,7 +256,10 @@ export type StaffListItem = {
   job_title: string | null;
   department: string | null;
   hire_date: string;
-  profile: Pick<Profile, "id" | "first_name" | "last_name" | "email" | "phone" | "role" | "is_active">;
+  profile: Pick<
+    Profile,
+    "id" | "first_name" | "last_name" | "email" | "phone" | "role" | "is_active" | "permissions"
+  >;
 };
 
 export type AttendanceStatus = "present" | "absent" | "late" | "excused";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import {
   getAttendanceGroups,
   getGroupAttendanceSheet,
@@ -24,7 +24,7 @@ export default async function AttendancePage({
 }: {
   searchParams: Promise<{ grp?: string; date?: string }>;
 }) {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("attendance");
   const sp = await searchParams;
   const today = new Date().toISOString().slice(0, 10);
 

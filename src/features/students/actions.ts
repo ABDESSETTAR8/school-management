@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth/session";
+import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { createStudentSchema, updateStudentSchema, type ActionState } from "./schema";
 
@@ -38,7 +38,7 @@ function rowFrom(d: {
 }
 
 export async function createStudent(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("students");
   const parsed = createStudentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
 
@@ -52,7 +52,7 @@ export async function createStudent(_prev: ActionState, formData: FormData): Pro
 }
 
 export async function updateStudent(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("students");
   const parsed = updateStudentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Invalid input." };
 
@@ -67,7 +67,7 @@ export async function updateStudent(_prev: ActionState, formData: FormData): Pro
 }
 
 export async function deleteStudent(studentId: string): Promise<ActionState> {
-  await requireRole(["admin", "worker"]);
+  await requirePermission("students");
   const supabase = await createClient();
   const { error } = await supabase.from("students").delete().eq("id", studentId);
   if (error) return { error: error.message };
