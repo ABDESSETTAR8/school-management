@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Pencil, Plus, Search, UserPlus } from "lucide-react";
 import type { StudentListItem } from "@/types/database.types";
 import { getInitials } from "@/lib/utils";
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -33,31 +35,35 @@ const CSV_COLUMNS: CsvColumn<StudentListItem>[] = [
   { header: "Registration Date", value: (s) => s.registration_date },
 ];
 
+const hrefFor = (q: string, page: number) =>
+  `/dashboard/students?q=${encodeURIComponent(q)}&page=${page}`;
+
 export function StudentsTable({
   students,
   classes,
   groups,
+  q,
+  page,
+  pageSize,
+  total,
 }: {
   students: StudentListItem[];
   classes: { id: string; name: string }[];
   groups: { id: string; name: string }[];
+  q: string;
+  page: number;
+  pageSize: number;
+  total: number;
 }) {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const [term, setTerm] = useState(q);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return students;
-    return students.filter((s) => {
-      const name = `${s.first_name} ${s.last_name}`.toLowerCase();
-      return (
-        name.includes(q) ||
-        (s.parent_name?.toLowerCase().includes(q) ?? false) ||
-        (s.parent_phone?.toLowerCase().includes(q) ?? false) ||
-        (s.className?.toLowerCase().includes(q) ?? false) ||
-        (s.groupName?.toLowerCase().includes(q) ?? false)
-      );
-    });
-  }, [students, query]);
+  // Debounced navigation on search change.
+  useEffect(() => {
+    if (term === q) return;
+    const t = setTimeout(() => router.push(hrefFor(term, 1)), 300);
+    return () => clearTimeout(t);
+  }, [term, q, router]);
 
   return (
     <div className="space-y-4">
@@ -65,14 +71,14 @@ export function StudentsTable({
         <div className="relative max-w-xs flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
             placeholder="Search name, parent, phone…"
             className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
         <div className="flex items-center gap-2">
-          <ExportButton filename="students" rows={filtered} columns={CSV_COLUMNS} />
+          <ExportButton filename="students" rows={students} columns={CSV_COLUMNS} />
           <StudentDialog
             classes={classes}
             groups={groups}
@@ -99,19 +105,17 @@ export function StudentsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {students.length === 0 ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={7}>
                   <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
                     <UserPlus className="size-8 opacity-40" />
-                    <p className="text-sm">
-                      {students.length === 0 ? "No students yet." : "No matches for your search."}
-                    </p>
+                    <p className="text-sm">{q ? "No matches for your search." : "No students yet."}</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((s) => (
+              students.map((s) => (
                 <TableRow key={s.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -158,9 +162,7 @@ export function StudentsTable({
         </Table>
       </Card>
 
-      <p className="text-xs text-muted-foreground">
-        {filtered.length} of {students.length} student{students.length === 1 ? "" : "s"}
-      </p>
+      <Pagination page={page} pageSize={pageSize} total={total} makeHref={(p) => hrefFor(q, p)} />
     </div>
   );
 }

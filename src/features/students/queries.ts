@@ -20,24 +20,8 @@ type RawStudent = {
   group: { name: string } | null;
 };
 
-/** All students with their class & group names. Staff only via RLS. */
-export async function getStudents(): Promise<StudentListItem[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("students")
-    .select(
-      `id, first_name, last_name, gender, date_of_birth,
-       parent_name, parent_phone, address, notes, status, registration_date,
-       class_id, group_id,
-       class:classes ( name ),
-       group:groups ( name )`,
-    )
-    .order("first_name", { ascending: true })
-    .returns<RawStudent[]>();
-
-  if (error) throw new Error(error.message);
-
-  return (data ?? []).map((s) => ({
+function mapStudent(s: RawStudent): StudentListItem {
+  return {
     id: s.id,
     first_name: s.first_name,
     last_name: s.last_name,
@@ -53,13 +37,47 @@ export async function getStudents(): Promise<StudentListItem[]> {
     notes: s.notes,
     status: s.status,
     registration_date: s.registration_date,
-  }));
+  };
+}
+
+const SELECT = `id, first_name, last_name, gender, date_of_birth,
+  parent_name, parent_phone, address, notes, status, registration_date,
+  class_id, group_id, class:classes ( name ), group:groups ( name )`;
+
+/** Paginated + searchable student list. Staff only via RLS. */
+export async function getStudents({
+  q = "",
+  page = 1,
+  pageSize = 10,
+}: { q?: string; page?: number; pageSize?: number } = {}): Promise<{
+  rows: StudentListItem[];
+  total: number;
+}> {
+  const supabase = await createClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("students")
+    .select(SELECT, { count: "exact" })
+    .order("first_name", { ascending: true })
+    .range(from, to);
+
+  const s = q.replace(/[%,()]/g, "").trim();
+  if (s.length >= 1) {
+    query = query.or(
+      `first_name.ilike.%${s}%,last_name.ilike.%${s}%,parent_name.ilike.%${s}%,parent_phone.ilike.%${s}%`,
+    );
+  }
+
+  const { data, count, error } = await query.returns<RawStudent[]>();
+  if (error) throw new Error(error.message);
+
+  return { rows: (data ?? []).map(mapStudent), total: count ?? 0 };
 }
 
 export async function getStudentCount(): Promise<number> {
   const supabase = await createClient();
-  const { count } = await supabase
-    .from("students")
-    .select("id", { count: "exact", head: true });
+  const { count } = await supabase.from("students").select("id", { count: "exact", head: true });
   return count ?? 0;
 }

@@ -7,10 +7,20 @@ import { StudentsTable } from "@/features/students/components/students-table";
 
 export const metadata: Metadata = { title: "Students" };
 
-export default async function StudentsPage() {
+const PAGE_SIZE = 10;
+
+export default async function StudentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   await requirePermission("students");
-  const [students, classList, groupList] = await Promise.all([
-    getStudents(),
+  const sp = await searchParams;
+  const q = sp.q ?? "";
+  const page = Math.max(1, Number(sp.page) || 1);
+
+  const [{ rows, total }, classList, groupList] = await Promise.all([
+    getStudents({ q, page, pageSize: PAGE_SIZE }),
     getClasses(),
     getGroups(),
   ]);
@@ -25,7 +35,15 @@ export default async function StudentsPage() {
           Register and manage students, their class, group, and parent contact.
         </p>
       </div>
-      <StudentsTable students={students} classes={classes} groups={groups} />
+      <StudentsTable
+        students={rows}
+        classes={classes}
+        groups={groups}
+        q={q}
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+      />
     </div>
   );
 }
