@@ -9,8 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "./submit-button";
 
-export function LoginForm() {
+export function LoginForm({
+  labels,
+}: {
+  labels?: { email: string; password: string; signin: string };
+}) {
   const [state, formAction] = useActionState<AuthState, FormData>(login, null);
+  const t = labels ?? { email: "Email", password: "Password", signin: "Sign in" };
 
   return (
     <form action={formAction} className="space-y-4">
@@ -22,13 +27,13 @@ export function LoginForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t.email}</Label>
         <Input id="email" name="email" type="email" autoComplete="email" placeholder="you@school.edu" required />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t.password}</Label>
           <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary">
             Forgot password?
           </Link>
@@ -36,7 +41,7 @@ export function LoginForm() {
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
 
-      <SubmitButton>Sign in</SubmitButton>
+      <SubmitButton>{t.signin}</SubmitButton>
     </form>
   );
 }

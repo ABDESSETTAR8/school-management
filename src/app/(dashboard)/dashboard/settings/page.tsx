@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
 import { requirePermission } from "@/lib/auth/session";
 import { getAcademicYears, getSchoolSettings } from "@/features/settings/queries";
+import { getLocale } from "@/i18n/server";
 import { YearsManager } from "@/features/settings/components/years-manager";
 import { SchoolSettingsForm } from "@/features/settings/components/school-settings-form";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   await requirePermission("settings");
-  const [years, school] = await Promise.all([getAcademicYears(), getSchoolSettings()]);
+  const [years, school, locale] = await Promise.all([
+    getAcademicYears(),
+    getSchoolSettings(),
+    getLocale(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -35,9 +41,15 @@ export default async function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-base">Appearance</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Choose your theme.</p>
-            <ThemeToggle />
+          <CardContent className="space-y-5">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Choose your theme.</p>
+              <ThemeToggle />
+            </div>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Language</p>
+              <LanguageSwitcher current={locale} />
+            </div>
           </CardContent>
         </Card>
       </div>

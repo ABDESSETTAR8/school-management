@@ -3,6 +3,7 @@ import type { PermissionKey } from "@/config/permissions";
 import type { UserRole } from "@/types/database.types";
 
 export type NavItem = {
+  key: string;
   title: string;
   href: string;
   icon: IconName;
@@ -11,35 +12,35 @@ export type NavItem = {
 };
 
 const ADMIN_NAV: NavItem[] = [
-  { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
-  { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
-  { title: "Teachers", href: "/dashboard/teachers", icon: "Presentation" },
-  { title: "Workers", href: "/dashboard/staff", icon: "UserCog" },
-  { title: "Classes", href: "/dashboard/classes", icon: "Users" },
-  { title: "Groups", href: "/dashboard/groups", icon: "Layers" },
-  { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
-  { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
-  { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  { key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
+  { key: "students", title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
+  { key: "teachers", title: "Teachers", href: "/dashboard/teachers", icon: "Presentation" },
+  { key: "workers", title: "Workers", href: "/dashboard/staff", icon: "UserCog" },
+  { key: "classes", title: "Classes", href: "/dashboard/classes", icon: "Users" },
+  { key: "groups", title: "Groups", href: "/dashboard/groups", icon: "Layers" },
+  { key: "subjects", title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen" },
+  { key: "attendance", title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck" },
+  { key: "settings", title: "Settings", href: "/dashboard/settings", icon: "Settings" },
 ];
 
 const WORKER_NAV: NavItem[] = [
-  { title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
-  { title: "Students", href: "/dashboard/students", icon: "GraduationCap", perm: "students" },
-  { title: "Teachers", href: "/dashboard/teachers", icon: "Presentation", perm: "teachers" },
-  { title: "Classes", href: "/dashboard/classes", icon: "Users", perm: "classes" },
-  { title: "Groups", href: "/dashboard/groups", icon: "Layers", perm: "groups" },
-  { title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen", perm: "subjects" },
-  { title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck", perm: "attendance" },
-  { title: "Settings", href: "/dashboard/settings", icon: "Settings", perm: "settings" },
+  { key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
+  { key: "students", title: "Students", href: "/dashboard/students", icon: "GraduationCap", perm: "students" },
+  { key: "teachers", title: "Teachers", href: "/dashboard/teachers", icon: "Presentation", perm: "teachers" },
+  { key: "classes", title: "Classes", href: "/dashboard/classes", icon: "Users", perm: "classes" },
+  { key: "groups", title: "Groups", href: "/dashboard/groups", icon: "Layers", perm: "groups" },
+  { key: "subjects", title: "Subjects", href: "/dashboard/subjects", icon: "BookOpen", perm: "subjects" },
+  { key: "attendance", title: "Attendance", href: "/dashboard/attendance", icon: "CalendarCheck", perm: "attendance" },
+  { key: "settings", title: "Settings", href: "/dashboard/settings", icon: "Settings", perm: "settings" },
 ];
 
 /** Navigation surface per role. Workers are filtered by their permissions at render. */
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   admin: ADMIN_NAV,
   worker: WORKER_NAV,
-  teacher: [{ title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
-  student: [{ title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
-  parent: [{ title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
+  teacher: [{ key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
+  student: [{ key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
+  parent: [{ key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" }],
 };
 
 /** Filter a role's nav by the user's granted permissions (admins see all). */

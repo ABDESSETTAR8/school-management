@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import { ToastProvider } from "@/components/ui/toaster";
 import { PWARegister } from "@/components/pwa-register";
+import { getLocale } from "@/i18n/server";
+import { dir } from "@/i18n/dictionaries";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -21,9 +23,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={dir(locale)} suppressHydrationWarning>
       <head>
         <script
           // Apply saved theme before paint to avoid a flash of the wrong theme.
