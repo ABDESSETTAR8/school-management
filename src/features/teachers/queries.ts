@@ -20,24 +20,41 @@ function monthKey(d: string) {
   return d.slice(0, 7); // YYYY-MM
 }
 
-/** All teachers with groups count + this-month payment summary. */
-export async function getTeachers(): Promise<TeacherListItem[]> {
+/** Paginated + searchable teachers with groups count + this-month payment summary. */
+export async function getTeachers({
+  q = "",
+  page = 1,
+  pageSize = 10,
+}: { q?: string; page?: number; pageSize?: number } = {}): Promise<{
+  rows: TeacherListItem[];
+  total: number;
+}> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
     .from("teachers")
     .select(
       `id, first_name, last_name, phone, email, subjects, salary, notes, is_active,
        groups ( count ),
        teacher_payments ( id, teacher_id, amount, payment_date, method, note )`,
+      { count: "exact" },
     )
     .order("first_name", { ascending: true })
-    .returns<RawTeacher[]>();
+    .range(from, to);
 
+  const s = q.replace(/[%,()]/g, "").trim();
+  if (s.length >= 1) {
+    query = query.or(`first_name.ilike.%${s}%,last_name.ilike.%${s}%`);
+  }
+
+  const { data, count, error } = await query.returns<RawTeacher[]>();
   if (error) throw new Error(error.message);
 
   const thisMonth = new Date().toISOString().slice(0, 7);
 
-  return (data ?? []).map((t) => {
+  const rows = (data ?? []).map((t) => {
     const payments = [...(t.teacher_payments ?? [])].sort((a, b) =>
       b.payment_date.localeCompare(a.payment_date),
     );
@@ -62,6 +79,8 @@ export async function getTeachers(): Promise<TeacherListItem[]> {
       payments,
     };
   });
+
+  return { rows, total: count ?? 0 };
 }
 
 /** Teachers as selectable options (for group assignment). */

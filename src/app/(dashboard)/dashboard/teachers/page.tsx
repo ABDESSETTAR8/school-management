@@ -5,9 +5,18 @@ import { TeachersTable } from "@/features/teachers/components/teachers-table";
 
 export const metadata: Metadata = { title: "Teachers" };
 
-export default async function TeachersPage() {
+const PAGE_SIZE = 10;
+
+export default async function TeachersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   await requirePermission("teachers");
-  const teachers = await getTeachers();
+  const sp = await searchParams;
+  const q = sp.q ?? "";
+  const page = Math.max(1, Number(sp.page) || 1);
+  const { rows, total } = await getTeachers({ q, page, pageSize: PAGE_SIZE });
 
   return (
     <div className="space-y-6">
@@ -17,7 +26,7 @@ export default async function TeachersPage() {
           Manage teachers, salaries, and payments.
         </p>
       </div>
-      <TeachersTable teachers={teachers} />
+      <TeachersTable teachers={rows} q={q} page={page} pageSize={PAGE_SIZE} total={total} />
     </div>
   );
 }

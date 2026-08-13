@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Plus, Presentation, Search, Trash2 } from "lucide-react";
 import { deleteTeacher } from "../actions";
 import type { TeacherListItem } from "@/types/database.types";
 import type { CsvColumn } from "@/lib/csv";
+import { Pagination } from "@/components/ui/pagination";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -90,18 +92,30 @@ function DeleteButton({ teacher }: { teacher: TeacherListItem }) {
   );
 }
 
-export function TeachersTable({ teachers }: { teachers: TeacherListItem[] }) {
-  const [query, setQuery] = useState("");
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return teachers;
-    return teachers.filter(
-      (t) =>
-        `${t.first_name} ${t.last_name}`.toLowerCase().includes(q) ||
-        t.subjects.some((s) => s.toLowerCase().includes(q)) ||
-        (t.phone?.includes(q) ?? false),
+export function TeachersTable({
+  teachers,
+  q,
+  page,
+  pageSize,
+  total,
+}: {
+  teachers: TeacherListItem[];
+  q: string;
+  page: number;
+  pageSize: number;
+  total: number;
+}) {
+  const router = useRouter();
+  const [term, setTerm] = useState(q);
+
+  useEffect(() => {
+    if (term === q) return;
+    const t = setTimeout(
+      () => router.push(`/dashboard/teachers?q=${encodeURIComponent(term)}&page=1`),
+      300,
     );
-  }, [teachers, query]);
+    return () => clearTimeout(t);
+  }, [term, q, router]);
 
   return (
     <div className="space-y-4">
@@ -109,14 +123,14 @@ export function TeachersTable({ teachers }: { teachers: TeacherListItem[] }) {
         <div className="relative max-w-xs flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
             placeholder="Search teachers…"
             className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
         <div className="flex items-center gap-2">
-          <ExportButton filename="teachers" rows={filtered} columns={CSV_COLUMNS} />
+          <ExportButton filename="teachers" rows={teachers} columns={CSV_COLUMNS} />
           <TeacherDialog
             trigger={
               <Button>
@@ -140,17 +154,17 @@ export function TeachersTable({ teachers }: { teachers: TeacherListItem[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {teachers.length === 0 ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={6}>
                   <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
                     <Presentation className="size-8 opacity-40" />
-                    <p className="text-sm">{teachers.length === 0 ? "No teachers yet." : "No matches."}</p>
+                    <p className="text-sm">{q ? "No matches." : "No teachers yet."}</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((t) => (
+              teachers.map((t) => (
                 <TableRow key={t.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -198,9 +212,13 @@ export function TeachersTable({ teachers }: { teachers: TeacherListItem[] }) {
         </Table>
       </Card>
 
-      <p className="text-xs text-muted-foreground">
-        {filtered.length} of {teachers.length} teacher{teachers.length === 1 ? "" : "s"}
-      </p>
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        baseHref="/dashboard/teachers"
+        query={{ q }}
+      />
     </div>
   );
 }
