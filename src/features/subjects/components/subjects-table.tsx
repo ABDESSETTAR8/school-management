@@ -33,7 +33,6 @@ const CSV_COLUMNS: CsvColumn<Row>[] = [
   { header: "Code", value: (s) => s.code },
   { header: "Name", value: (s) => s.name },
   { header: "Description", value: (s) => s.description ?? "" },
-  { header: "Classes", value: (s) => s.classCount },
 ];
 
 function DeleteButton({ subject }: { subject: Row }) {
@@ -123,14 +122,13 @@ export function SubjectsTable({ subjects }: { subjects: Row[] }) {
               <TableHead>Code</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Classes</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={5}>
+                <TableCell colSpan={4}>
                   <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
                     <BookOpen className="size-8 opacity-40" />
                     <p className="text-sm">
@@ -151,7 +149,6 @@ export function SubjectsTable({ subjects }: { subjects: Row[] }) {
                   <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                     {s.description ?? "—"}
                   </TableCell>
-                  <TableCell className="text-sm">{s.classCount}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <SubjectDialog
