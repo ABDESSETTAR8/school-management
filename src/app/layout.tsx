@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import { ToastProvider } from "@/components/ui/toaster";
 import { PWARegister } from "@/components/pwa-register";
+import { OfflineIndicator } from "@/components/offline-indicator";
 import { getLocale } from "@/i18n/server";
 import { dir } from "@/i18n/dictionaries";
 import "./globals.css";
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={`${inter.variable} font-sans`}>
         <ToastProvider>{children}</ToastProvider>
+        <OfflineIndicator />
         <PWARegister />
       </body>
     </html>
