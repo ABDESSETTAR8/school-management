@@ -26,18 +26,9 @@ export async function saveClass(_prev: ActionState, formData: FormData): Promise
   const d = parsed.data;
 
   const supabase = await createClient();
-  const homeroom = d.homeroomTeacherId && d.homeroomTeacherId !== "" ? d.homeroomTeacherId : null;
 
   if (d.classId) {
-    const { error } = await supabase
-      .from("classes")
-      .update({
-        name: d.name,
-        grade_level: d.gradeLevel,
-        capacity: d.capacity,
-        homeroom_teacher_id: homeroom,
-      })
-      .eq("id", d.classId);
+    const { error } = await supabase.from("classes").update({ name: d.name }).eq("id", d.classId);
     if (error) return { error: error.message };
     revalidatePath(CLASSES_PATH);
     return { success: "Class updated." };
@@ -45,15 +36,13 @@ export async function saveClass(_prev: ActionState, formData: FormData): Promise
 
   const yearId = await currentAcademicYearId(supabase);
   if (!yearId) {
-    return { error: "No current academic year. Run seed.sql or mark a year as current first." };
+    return { error: "No current academic year. Set one in Settings first." };
   }
 
   const { error } = await supabase.from("classes").insert({
     academic_year_id: yearId,
     name: d.name,
-    grade_level: d.gradeLevel,
-    capacity: d.capacity,
-    homeroom_teacher_id: homeroom,
+    grade_level: 0,
   });
   if (error) return { error: error.message };
 

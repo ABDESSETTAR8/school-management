@@ -5,7 +5,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { saveClass } from "../actions";
 import type { ActionState } from "../schema";
-import type { ClassListItem, TeacherOption } from "@/types/database.types";
+import type { ClassListItem } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,9 +20,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const selectClass =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1";
-
 function SaveButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
@@ -35,14 +32,10 @@ function SaveButton({ label }: { label: string }) {
 
 export function ClassDialog({
   trigger,
-  teachers,
   cls,
-  currentHomeroomId,
 }: {
   trigger: React.ReactNode;
-  teachers: TeacherOption[];
   cls?: ClassListItem;
-  currentHomeroomId?: string | null;
 }) {
   const isEdit = Boolean(cls);
   const [state, formAction] = useActionState<ActionState, FormData>(saveClass, null);
@@ -60,7 +53,7 @@ export function ClassDialog({
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit class" : "Add class"}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Update this class section." : "Create a new class section for the current year."}
+            {isEdit ? "Rename this class." : "Create a new class."}
           </DialogDescription>
         </DialogHeader>
 
@@ -76,35 +69,7 @@ export function ClassDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Class name</Label>
-            <Input id="name" name="name" placeholder="e.g. Grade 7 - C" defaultValue={cls?.name} required />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="gradeLevel">Grade level</Label>
-              <Input id="gradeLevel" name="gradeLevel" type="number" min={1} max={13} defaultValue={cls?.grade_level ?? 7} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="capacity">Capacity</Label>
-              <Input id="capacity" name="capacity" type="number" min={1} max={200} defaultValue={cls?.capacity ?? 30} required />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="homeroomTeacherId">Homeroom teacher</Label>
-            <select
-              id="homeroomTeacherId"
-              name="homeroomTeacherId"
-              defaultValue={currentHomeroomId ?? ""}
-              className={selectClass}
-            >
-              <option value="">Unassigned</option>
-              {teachers.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+            <Input id="name" name="name" placeholder="e.g. 3rd Year Science" defaultValue={cls?.name} required autoFocus />
           </div>
 
           <DialogFooter>

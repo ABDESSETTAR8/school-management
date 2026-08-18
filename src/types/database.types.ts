@@ -22,6 +22,33 @@ export type Profile = {
 
 export type StudentStatus = "active" | "inactive";
 
+export type StudentPayment = {
+  id: string;
+  student_id: string;
+  amount: number;
+  paid_on: string;
+  for_month: string;
+  purpose: string;
+  method: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type BillingStatus = "paid" | "partial" | "unpaid";
+
+/** A student's billing summary for the current month. */
+export type BillingRow = {
+  id: string;
+  name: string;
+  groupName: string | null;
+  monthlyFee: number;
+  paidThisMonth: number;
+  status: BillingStatus;
+  parentName: string | null;
+  parentPhone: string | null;
+  payments: StudentPayment[];
+};
+
 export type Student = {
   id: string;
   first_name: string;
@@ -201,6 +228,43 @@ export type Group = {
   is_active: boolean;
 };
 
+/** A student inside a group, with attendance + payment status this month. */
+export type GroupStudentRow = {
+  id: string;
+  name: string;
+  phone: string | null;
+  attendanceRate: number;
+  presentCount: number;
+  absentCount: number;
+  paidThisMonth: number;
+  monthlyFee: number;
+  paidStatus: BillingStatus;
+};
+
+export type GroupDetail = {
+  id: string;
+  name: string;
+  className: string | null;
+  teacherName: string | null;
+  schedule: string | null;
+  classroom: string | null;
+  monthlyFee: number;
+  capacity: number;
+  isActive: boolean;
+};
+
+/** One row in the combined payments ledger (students + teachers). */
+export type PaymentLedgerRow = {
+  id: string;
+  type: "student" | "teacher";
+  payee: string;
+  amount: number;
+  date: string;
+  purpose: string;
+  method: string | null;
+  forMonth: string | null;
+};
+
 /** A group with computed roster size and monthly revenue, for list views. */
 export type GroupListItem = {
   id: string;
@@ -354,6 +418,7 @@ export type Database = {
       groups: Table<Group>;
       teachers: Table<Teacher>;
       teacher_payments: Table<TeacherPayment>;
+      student_payments: Table<StudentPayment>;
       terms: Table<Term>;
       guardians: Table<Guardian>;
       student_guardians: Table<StudentGuardian>;

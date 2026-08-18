@@ -84,3 +84,22 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* When printing a receipt, show only the receipt card. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-receipt,
+  .print-receipt * {
+    visibility: visible;
+  }
+  .print-receipt {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    border: none;
+    background: #fff;
+    color: #000;
+  }
+}

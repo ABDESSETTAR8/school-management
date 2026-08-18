@@ -1,6 +1,7 @@
 /** Sections a worker's access can be toggled for. Admins always have all. */
 export const PERMISSIONS = [
   { key: "students", label: "Students" },
+  { key: "billing", label: "Billing" },
   { key: "teachers", label: "Teachers" },
   { key: "classes", label: "Classes" },
   { key: "groups", label: "Groups" },

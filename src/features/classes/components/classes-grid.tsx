@@ -4,31 +4,20 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Pencil, Plus, Search, Users } from "lucide-react";
-import type { ClassListItem, TeacherOption } from "@/types/database.types";
+import type { ClassListItem } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClassDialog } from "./class-dialog";
 import { DeleteClassButton } from "./delete-class-button";
 
-export function ClassesGrid({
-  classes,
-  teachers,
-}: {
-  classes: ClassListItem[];
-  teachers: TeacherOption[];
-}) {
+export function ClassesGrid({ classes }: { classes: ClassListItem[] }) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return classes;
-    return classes.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        String(c.grade_level).includes(q) ||
-        (c.homeroomTeacher?.toLowerCase().includes(q) ?? false),
-    );
+    return classes.filter((c) => c.name.toLowerCase().includes(q));
   }, [classes, query]);
 
   return (
@@ -44,7 +33,6 @@ export function ClassesGrid({
           />
         </div>
         <ClassDialog
-          teachers={teachers}
           trigger={
             <Button>
               <Plus className="size-4" /> Add class
@@ -60,53 +48,42 @@ export function ClassesGrid({
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((c, i) => {
-            const full = c.enrolledCount >= c.capacity;
-            return (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Card className="group flex h-full flex-col p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{c.name}</h3>
-                      <p className="text-xs text-muted-foreground">Grade {c.grade_level}</p>
-                    </div>
-                    <Badge variant={full ? "warning" : "secondary"}>
-                      {c.enrolledCount}/{c.capacity}
-                    </Badge>
-                  </div>
+          {filtered.map((c, i) => (
+            <motion.div
+              key={c.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Card className="group flex h-full flex-col p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold">{c.name}</h3>
+                  <Badge variant="secondary">
+                    {c.enrolledCount} student{c.enrolledCount === 1 ? "" : "s"}
+                  </Badge>
+                </div>
 
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    Homeroom: {c.homeroomTeacher ?? "Unassigned"}
-                  </p>
-
-                  <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                    <Button asChild variant="link" className="h-auto p-0 text-primary">
-                      <Link href={`/dashboard/classes/${c.id}`}>
-                        Manage <ArrowRight className="size-3.5" />
-                      </Link>
-                    </Button>
-                    <div className="flex items-center gap-1">
-                      <ClassDialog
-                        teachers={teachers}
-                        cls={c}
-                        trigger={
-                          <Button variant="ghost" size="icon" aria-label="Edit class">
-                            <Pencil className="size-4" />
-                          </Button>
-                        }
-                      />
-                      <DeleteClassButton classId={c.id} name={c.name} />
-                    </div>
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                  <Button asChild variant="link" className="h-auto p-0 text-primary">
+                    <Link href={`/dashboard/classes/${c.id}`}>
+                      Manage <ArrowRight className="size-3.5" />
+                    </Link>
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    <ClassDialog
+                      cls={c}
+                      trigger={
+                        <Button variant="ghost" size="icon" aria-label="Edit class">
+                          <Pencil className="size-4" />
+                        </Button>
+                      }
+                    />
+                    <DeleteClassButton classId={c.id} name={c.name} />
                   </div>
-                </Card>
-              </motion.div>
-            );
-          })}
+                </div>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       )}
 

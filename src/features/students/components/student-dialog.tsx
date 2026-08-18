@@ -1,11 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { createStudent, updateStudent } from "../actions";
 import { GENDER_OPTIONS, STATUS_OPTIONS, type ActionState } from "../schema";
 import type { StudentListItem } from "@/types/database.types";
+import { siteConfig } from "@/config/site";
+import { whatsappLink } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,10 +54,28 @@ export function StudentDialog({
   const action = isEdit ? updateStudent : createStudent;
   const [state, formAction] = useActionState<ActionState, FormData>(action, null);
   const [open, setOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   useActionToast(state);
+
   useEffect(() => {
-    if (state?.success) setOpen(false);
-  }, [state]);
+    if (!state?.success) return;
+    // On a new registration, auto-open WhatsApp to the parent with the details.
+    if (!isEdit && formRef.current) {
+      const fd = new FormData(formRef.current);
+      const phone = String(fd.get("parentPhone") ?? "").trim();
+      if (phone) {
+        const name = `${fd.get("firstName") ?? ""} ${fd.get("lastName") ?? ""}`.trim();
+        const className = classes.find((c) => c.id === fd.get("classId"))?.name;
+        const groupName = groups.find((g) => g.id === fd.get("groupId"))?.name;
+        const parts = [`Registration confirmed for ${name} at ${siteConfig.name}.`];
+        if (className) parts.push(`Class: ${className}.`);
+        if (groupName) parts.push(`Group: ${groupName}.`);
+        parts.push("Welcome!");
+        window.open(whatsappLink(phone, parts.join(" ")), "_blank");
+      }
+    }
+    setOpen(false);
+  }, [state, isEdit, classes, groups]);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -70,7 +90,7 @@ export function StudentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="space-y-4">
+        <form ref={formRef} action={formAction} className="space-y-4">
           {state?.error && (
             <div className="flex items-start gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />

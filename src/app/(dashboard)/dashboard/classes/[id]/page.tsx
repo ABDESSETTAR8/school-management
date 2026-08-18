@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, GraduationCap, Users } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { requirePermission } from "@/lib/auth/session";
 import {
   getClass,
@@ -31,8 +31,6 @@ export default async function ClassDetailPage({
     getEnrollableStudents(),
   ]);
 
-  const full = cls.enrolledCount >= cls.capacity;
-
   return (
     <div className="space-y-6">
       <Link
@@ -46,39 +44,12 @@ export default async function ClassDetailPage({
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold tracking-tight">{cls.name}</h1>
-            <Badge variant={full ? "warning" : "secondary"}>
-              {cls.enrolledCount}/{cls.capacity}
+            <Badge variant="secondary">
+              {cls.enrolledCount} student{cls.enrolledCount === 1 ? "" : "s"}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Grade {cls.grade_level} · {cls.academicYear} · Homeroom: {cls.homeroomTeacher ?? "Unassigned"}
-          </p>
         </div>
         <EnrollDialog classId={cls.id} candidates={candidates} />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Enrolled</span>
-            <Users className="size-4 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-semibold">{cls.enrolledCount}</p>
-        </Card>
-        <Card className="p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Capacity</span>
-            <GraduationCap className="size-4 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-semibold">{cls.capacity}</p>
-        </Card>
-        <Card className="p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Available seats</span>
-            <Users className="size-4 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-semibold">{Math.max(0, cls.capacity - cls.enrolledCount)}</p>
-        </Card>
       </div>
 
       <Card>

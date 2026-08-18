@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Layers, Loader2, Pencil, Plus, Search, Trash2, Users } from "lucide-react";
+import { ArrowRight, Layers, Loader2, Pencil, Plus, Search, Trash2, Users } from "lucide-react";
 import { deleteGroup } from "../actions";
 import type { GroupListItem, TeacherOption } from "@/types/database.types";
 import type { CsvColumn } from "@/lib/csv";
@@ -168,25 +169,32 @@ export function GroupsGrid({
                   <div className="text-right text-muted-foreground">{g.schedule ?? "—"}</div>
                 </div>
 
-                <div className="mt-3 flex items-end justify-between border-t border-border pt-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Monthly revenue</p>
-                    <p className="text-lg font-semibold">{DZD(g.revenue)}</p>
-                    <p className="text-xs text-muted-foreground">{DZD(g.monthlyFee)} / student</p>
+                <div className="mt-3 border-t border-border pt-3">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Monthly revenue</p>
+                      <p className="text-lg font-semibold">{DZD(g.revenue)}</p>
+                      <p className="text-xs text-muted-foreground">{DZD(g.monthlyFee)} / student</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <GroupDialog
+                        group={g}
+                        classes={classes}
+                        teachers={teachers}
+                        trigger={
+                          <Button variant="ghost" size="icon" aria-label="Edit group">
+                            <Pencil className="size-4" />
+                          </Button>
+                        }
+                      />
+                      <DeleteButton group={g} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <GroupDialog
-                      group={g}
-                      classes={classes}
-                      teachers={teachers}
-                      trigger={
-                        <Button variant="ghost" size="icon" aria-label="Edit group">
-                          <Pencil className="size-4" />
-                        </Button>
-                      }
-                    />
-                    <DeleteButton group={g} />
-                  </div>
+                  <Button asChild variant="link" className="mt-1 h-auto p-0 text-primary">
+                    <Link href={`/dashboard/groups/${g.id}`}>
+                      Open group <ArrowRight className="size-3.5" />
+                    </Link>
+                  </Button>
                 </div>
               </Card>
             </motion.div>

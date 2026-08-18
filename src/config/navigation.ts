@@ -14,6 +14,8 @@ export type NavItem = {
 const ADMIN_NAV: NavItem[] = [
   { key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
   { key: "students", title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
+  { key: "billing", title: "Billing", href: "/dashboard/billing", icon: "Wallet" },
+  { key: "payments", title: "Payments", href: "/dashboard/payments", icon: "Receipt" },
   { key: "teachers", title: "Teachers", href: "/dashboard/teachers", icon: "Presentation" },
   { key: "workers", title: "Workers", href: "/dashboard/staff", icon: "UserCog" },
   { key: "classes", title: "Classes", href: "/dashboard/classes", icon: "Users" },
@@ -27,6 +29,8 @@ const ADMIN_NAV: NavItem[] = [
 const WORKER_NAV: NavItem[] = [
   { key: "overview", title: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
   { key: "students", title: "Students", href: "/dashboard/students", icon: "GraduationCap", perm: "students" },
+  { key: "billing", title: "Billing", href: "/dashboard/billing", icon: "Wallet", perm: "billing" },
+  { key: "payments", title: "Payments", href: "/dashboard/payments", icon: "Receipt", perm: "billing" },
   { key: "teachers", title: "Teachers", href: "/dashboard/teachers", icon: "Presentation", perm: "teachers" },
   { key: "classes", title: "Classes", href: "/dashboard/classes", icon: "Users", perm: "classes" },
   { key: "groups", title: "Groups", href: "/dashboard/groups", icon: "Layers", perm: "groups" },
