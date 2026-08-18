@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; height: 100%; }
+      body {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px; height: 100%;
+        background: #0f172a; color: #e2e8f0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        -webkit-user-select: none; user-select: none;
+      }
+      .logo {
+        width: 72px; height: 72px; border-radius: 18px; background: #2563eb;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .logo svg { width: 44px; height: 44px; }
+      .title { font-size: 20px; font-weight: 600; }
+      .sub { font-size: 13px; color: #94a3b8; }
+      .spinner {
+        width: 22px; height: 22px; border-radius: 50%;
+        border: 3px solid rgba(148,163,184,.3); border-top-color: #2563eb;
+        animation: spin .8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M256 120 L432 200 L256 280 L80 200 Z" fill="#fff"/>
+        <path d="M152 236 L152 320 C152 352 198 380 256 380 C314 380 360 352 360 320 L360 236 L256 282 Z" fill="#fff" fill-opacity="0.9"/>
+        <path d="M432 200 L432 320" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+        <circle cx="432" cy="338" r="20" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="title">Scholar</div>
+    <div class="spinner"></div>
+    <div class="sub">Loading…</div>
+  </body>
+</html>
